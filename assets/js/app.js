@@ -369,8 +369,8 @@
         ...current,
         title: src.title || src.name || current.title,
         location: src.location || src.city || current.location,
-        goal: toNumber(src.goal, current.goal),
-        raised: toNumber(src.raised, current.raised),
+        goal: toNumber((src.goal ?? src.target), current.goal),
+        raised: toNumber((src.raised ?? src.collected), current.raised),
         remaining: toNumber(src.remaining, current.remaining),
         progress: toNumber(src.progress, current.progress),
         updatedAt: src.updatedAt || src.updated_at || cfg.sourceLabel || current.updatedAt,
@@ -409,7 +409,10 @@
     const locationEl = document.getElementById('currentLocationText');
     if (locationEl) locationEl.textContent = c.location;
     const updatedEl = document.getElementById('lastUpdatedValue');
-    if (updatedEl) updatedEl.textContent = c.updatedAt;
+    if (updatedEl) {
+      const maybeDate = new Date(c.updatedAt);
+      updatedEl.textContent = Number.isNaN(maybeDate.getTime()) ? c.updatedAt : maybeDate.toLocaleString(lang() === 'ar' ? 'ar-EG' : 'sv-SE');
+    }
     const noteEl = document.getElementById('currentCampaignNote');
     if (noteEl) noteEl.textContent = c.notes || t('currentHint');
     const bar = document.getElementById('currentProgressBar');
@@ -490,6 +493,9 @@
     renderPreview();
     initCampaignsMap();
     renderCurrentCampaign();
+    if (document.getElementById('currentCampaignBox')) {
+      window.setInterval(renderCurrentCampaign, 10000);
+    }
     hydrateLinks();
     initReveal();
   });
@@ -500,6 +506,9 @@
     renderPreview();
     initCampaignsMap();
     renderCurrentCampaign();
+    if (document.getElementById('currentCampaignBox')) {
+      window.setInterval(renderCurrentCampaign, 10000);
+    }
     hydrateLinks();
     initReveal();
   });
