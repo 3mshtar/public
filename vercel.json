@@ -1,0 +1,30 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": true,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/campaigns/",
+      "destination": "/campaigns/index.html"
+    },
+    {
+      "source": "/current/",
+      "destination": "/current/index.html"
+    },
+    {
+      "source": "/membership/",
+      "destination": "/membership/index.html"
+    },
+    {
+      "source": "/about/",
+      "destination": "/about/index.html"
+    },
+    {
+      "source": "/contact/",
+      "destination": "/contact/index.html"
+    }
+  ]
+}
