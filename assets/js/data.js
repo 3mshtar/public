@@ -283,8 +283,9 @@ window.VMB_DATA = {
     "raised": 0,
     "remaining": 1500000,
     "progress": 0,
-    "updatedAt": "Ready for Apps Script",
-    "notes": "يتم تحديث هذه الحملة من Google Apps Script بشكل مستقل عن صفحة الحملات السابقة."
+    "imageUrl": "../assets/img/katrineholm-campaign.png",
+    "updatedAt": "Ready",
+    "notes": "هنا يتم تحديث كل مبلغ وكل تبرع لحظة بلحظة ليظهر مستوى التقدم والاحتياج بصورة واضحة وشفافة."
   },
   "currentCampaignSheet": {
     "appsScriptUrl": "https://script.google.com/macros/s/AKfycbzyThwnIZiGQyUqLsh77g45a6zKayCSlR8qlapKk8gbgMU8OBabpELBoqk_ZPcOrNAI/exec",
