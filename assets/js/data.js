@@ -285,7 +285,7 @@ window.VMB_DATA = {
     "progress": 0,
     "imageUrl": "../assets/img/katrineholm-campaign.png",
     "updatedAt": "Ready",
-    "notes": "هنا يتم تحديث كل مبلغ وكل تبرع لحظة بلحظة ليظهر مستوى التقدم والاحتياج بصورة واضحة وشفافة."
+    "notes": "هنا يتم تحديث كل مبلغ وكل تبرع لحظة بلحظة ليظهر مستوى التقدم ومسار الحملة بصورة واضحة وشفافة."
   },
   "currentCampaignSheet": {
     "appsScriptUrl": "https://script.google.com/macros/s/AKfycbzyThwnIZiGQyUqLsh77g45a6zKayCSlR8qlapKk8gbgMU8OBabpELBoqk_ZPcOrNAI/exec",

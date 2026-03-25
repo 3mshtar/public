@@ -6,7 +6,7 @@
       siteTagline: 'حملة إعمار وتطوير المساجد في السويد',
       navHome: 'الرئيسية', navCampaigns: 'الحملات السابقة', navCurrent: 'الحملة الحالية', navMembership: 'العضوية', navAbout: 'من نحن', navContact: 'تواصل معنا',
       heroEyebrow: 'معاً نصنع صدقة جارية',
-      heroTitle: 'حملة خيرية لإعمار وتطوير المساجد في السويد',
+      heroTitle: 'حملة عصرية لإعمار وتطوير المساجد في السويد',
       heroLead: 'منصة خيرية غير ربحية تربط المتبرع بالأثر الحقيقي، وتعرض الإنجازات والاحتياجات الجارية بلغة واضحة وهوية حديثة تبعث الثقة والسكينة.',
       heroCta1: 'تبرع الآن', heroCta2: 'شاهد الإنجازات', heroBubble1: '25 مسجدًا في مسيرة العطاء', heroBubble2: 'شفافية مباشرة وأرقام حية',
       stat1: 'مسجدًا ساهمنا فيه', stat2: 'إجمالي الميزانية', stat3: 'مشاريع مكتملة', stat4: 'لغتان',
@@ -24,7 +24,7 @@
       totalCollected: 'إجمالي ما جمعناه', totalMosques: 'إجمالي المساجد', completedProjects: 'اكتمل جمع المبلغ', totalFull: 'إجمالي المبالغ الكاملة',
       currentTitle: 'الحملة الحالية', currentLead: 'الحملة الحالية مستقلة عن الحملات السابقة، وتُعرض أرقامها بشكل واضح ومباشر مع تحديثات متواصلة.',
       goal: 'المبلغ الكامل', raised: 'المبلغ المحصل', remaining: 'المبلغ المتبقي', lastUpdated: 'آخر تحديث', donateNow: 'ادعم الحملة الآن',
-      currentHint: 'هنا يتم تحديث كل مبلغ وكل تبرع لحظة بلحظة ليظهر للزائر مستوى التقدم والاحتياج بصورة واضحة وشفافة.', currentLocation: 'موقع الحملة الحالية', liveSync: 'تحديث مباشر', donationModalTitle: 'اختر طريقة التبرع للحملة الحالية', donationModalLead: 'اختر وسيلة التبرع الأنسب لك لدعم مسجد Katrineholm مباشرة.', donateViaSwish: 'تبرع سريع عبر سويش', donateViaStripe: 'تبرع بالبطاقة عبر Stripe', donateViaPaypal: 'تبرع عبر PayPal',
+      currentHint: 'هنا يتم تحديث كل مبلغ وكل تبرع لحظة بلحظة ليظهر للزائر مستوى التقدم ومسار الحملة بصورة واضحة وشفافة.', currentLocation: 'موقع الحملة الحالية', liveSync: 'تحديث مباشر', donationModalTitle: 'اختر طريقة التبرع للحملة الحالية', donationModalLead: 'اختر وسيلة التبرع الأنسب لك لدعم مسجد Katrineholm مباشرة.', donateViaSwish: 'تبرع سريع عبر سويش', donateViaStripe: 'تبرع بالبطاقة عبر Stripe', donateViaPaypal: 'تبرع عبر PayPal',
       membershipTitle: 'عضوية داعمة مستمرة', membershipLead: 'ادخل كعضو مساهم وكن جزءًا من العطاء المستمر الذي يبني المساجد ويدعم المشاريع ذات الأولوية.',
       membershipCardTitle: 'عضوية Vi Mår Bra', membershipCardText: 'الاشتراك يتم بشكل آمن عبر Stripe Checkout، ليكون دعمك الشهري ثابتًا وسهلًا.', membershipBtn: 'اشترك الآن',
       member1: 'مساهمة شهرية سهلة', member2: 'دعم أسرع للمشاريع ذات الأولوية', member3: 'وسيلة آمنة واحترافية للدفع', donationMethodsTitle: 'طرق التبرع الأخرى',
@@ -62,7 +62,7 @@
       totalCollected: 'Totalt insamlat av oss', totalMosques: 'Antal moskéer', completedProjects: 'Insamling klar', totalFull: 'Totala projektbelopp',
       currentTitle: 'Aktuell kampanj', currentLead: 'Siffrorna för den aktuella kampanjen visas tydligt och uppdateras löpande utan koppling till tidigare kampanjer.',
       goal: 'Fullt mål', raised: 'Insamlat', remaining: 'Kvar', lastUpdated: 'Senast uppdaterad', donateNow: 'Stöd kampanjen nu',
-      currentHint: 'Här uppdateras varje belopp och varje donation löpande så att besökaren ser framsteg och behov tydligt.', currentLocation: 'Plats för aktuell kampanj', liveSync: 'Direkt uppdatering', donationModalTitle: 'Välj donationssätt för den aktuella kampanjen', donationModalLead: 'Välj det sätt som passar dig bäst för att stödja Katrineholms moské direkt.', donateViaSwish: 'Snabb donation via Swish', donateViaStripe: 'Kortbetalning via Stripe', donateViaPaypal: 'Donation via PayPal',
+      currentHint: 'Här uppdateras varje belopp och varje donation löpande så att besökaren ser kampanjens utveckling tydligt och transparent.', currentLocation: 'Plats för aktuell kampanj', liveSync: 'Direkt uppdatering', donationModalTitle: 'Välj donationssätt för den aktuella kampanjen', donationModalLead: 'Välj det sätt som passar dig bäst för att stödja Katrineholms moské direkt.', donateViaSwish: 'Snabb donation via Swish', donateViaStripe: 'Kortbetalning via Stripe', donateViaPaypal: 'Donation via PayPal',
       membershipTitle: 'Löpande stödmedlemskap', membershipLead: 'Bli stödmedlem och var med i ett kontinuerligt givande som bygger moskéer och stärker prioriterade projekt.',
       membershipCardTitle: 'Vi Mår Bra-medlemskap', membershipCardText: 'Anslutningen sker säkert via Stripe Checkout så att ditt månatliga stöd blir enkelt och professionellt.', membershipBtn: 'Bli medlem nu',
       member1: 'Enkel återkommande gåva', member2: 'Snabbare stöd till prioriterade projekt', member3: 'Säker och professionell betalning', donationMethodsTitle: 'Andra donationssätt',
@@ -143,15 +143,16 @@
   function animateValue(el, value, type = 'number') {
     if (!el) return;
     const target = Number(value || 0);
+    const numberTarget = el.querySelector('[data-animate-number]') || el;
     const startTime = performance.now();
     const duration = 1200;
     function tick(now) {
       const p = Math.min((now - startTime) / duration, 1);
       const eased = 1 - Math.pow(1 - p, 3);
       const current = target * eased;
-      if (type === 'currency') el.textContent = formatNumber(current, 'currency');
-      else if (type === 'percent') el.textContent = `${current.toFixed(1)}%`;
-      else el.textContent = formatNumber(current);
+      if (type === 'currency') numberTarget.textContent = formatNumber(current, 'currency');
+      else if (type === 'percent') numberTarget.textContent = `${current.toFixed(1)}%`;
+      else numberTarget.textContent = formatNumber(current, 'number');
       if (p < 1) requestAnimationFrame(tick);
     }
     requestAnimationFrame(tick);
