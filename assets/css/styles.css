@@ -414,3 +414,87 @@ textarea.form-control { min-height: 180px; }
 .map-shell {
   background: #eef4f1;
 }
+
+
+.fallback-map-shell{
+  border-radius: 32px;
+  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(246,250,248,.96));
+  border: 1px solid var(--vmb-border);
+  box-shadow: var(--vmb-shadow);
+  overflow: hidden;
+}
+.fallback-map-shell.is-small{ height: 100%; }
+.fallback-map-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:1rem;
+  padding:1rem 1.25rem;
+  border-bottom:1px solid var(--vmb-border);
+  background: rgba(255,255,255,.75);
+}
+.fallback-map-header strong{font-size:1rem;}
+.fallback-map-header span{color:var(--vmb-muted); font-size:.92rem; max-width:60%;}
+.fallback-map-surface{
+  position:relative;
+  min-height:620px;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(15,109,98,.16), transparent 28%),
+    radial-gradient(circle at 80% 85%, rgba(200,159,74,.18), transparent 24%),
+    linear-gradient(180deg, #eef6f2 0%, #f8fbfa 100%);
+  overflow:hidden;
+}
+.fallback-map-surface.is-small{ min-height:620px; }
+.fallback-map-surface::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(15,109,98,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15,109,98,.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity:.45;
+}
+.fallback-map-shape{
+  position:absolute;
+  inset:7% 18% 5% 22%;
+  background: linear-gradient(180deg, rgba(15,109,98,.10), rgba(15,109,98,.04));
+  clip-path: polygon(49% 0%, 58% 4%, 62% 10%, 66% 17%, 63% 24%, 67% 32%, 63% 42%, 68% 53%, 62% 63%, 66% 73%, 60% 84%, 55% 100%, 44% 95%, 42% 83%, 37% 70%, 39% 58%, 35% 48%, 39% 37%, 36% 26%, 42% 16%, 43% 8%);
+  opacity:.95;
+  border-radius:30px;
+}
+.fallback-map-word{
+  position:absolute;
+  top:8%;
+  left:8%;
+  font-size: clamp(1.1rem, 2vw, 1.6rem);
+  font-weight:800;
+  letter-spacing:.18em;
+  color: rgba(23,52,49,.18);
+}
+.fallback-map-point{
+  position:absolute;
+  width:18px;
+  height:18px;
+  border-radius:999px;
+  border:3px solid #fff;
+  transform:translate(-50%,-50%);
+  box-shadow:0 10px 22px rgba(23,52,49,.16);
+  cursor:pointer;
+  z-index:2;
+}
+.fallback-map-point.is-complete{ background: var(--vmb-primary); }
+.fallback-map-point.is-active{ background: var(--vmb-accent); }
+.fallback-map-popup{
+  position:absolute;
+  z-index:3;
+  width:230px;
+  background:#fff;
+  border:1px solid var(--vmb-border);
+  border-radius:20px;
+  box-shadow: var(--vmb-shadow);
+  padding:.9rem 1rem;
+}
+.fallback-popup-title{ font-weight:800; margin-bottom:.15rem; }
+.fallback-popup-city{ color:var(--vmb-muted); font-size:.92rem; margin-bottom:.5rem; }
+.fallback-popup-line{ font-size:.92rem; margin:.2rem 0; }
