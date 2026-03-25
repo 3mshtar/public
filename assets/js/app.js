@@ -427,7 +427,7 @@
       updatedEl.textContent = Number.isNaN(maybeDate.getTime()) ? c.updatedAt : maybeDate.toLocaleString(lang() === 'ar' ? 'ar-EG' : 'sv-SE');
     }
     const noteEl = document.getElementById('currentCampaignNote');
-    if (noteEl) noteEl.textContent = c.notes || t('currentHint');
+    if (noteEl) noteEl.textContent = t('currentHint');
     const bar = document.getElementById('currentProgressBar');
     const label = document.getElementById('currentProgressLabel');
     if (bar) bar.style.width = `${Math.min(Number(c.progress || 0), 100)}%`;
