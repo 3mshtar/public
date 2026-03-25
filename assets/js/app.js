@@ -15,7 +15,7 @@
       feat1t: 'شفافية مباشرة', feat1d: 'عرض واضح للأرقام والمستهدف ونسبة التقدم بما يعزز الثقة لدى الزائر والمتبرع.',
       feat2t: 'خريطة الإنجاز', feat2d: 'كل مسجد يظهر على خريطة السويد مع نافذة معلومات مختصرة وسهلة.',
       feat3t: 'أمانة في العرض', feat3d: 'عرض أمين للحملات والبيانات والحالة الحالية لكل مشروع دون مبالغة أو غموض.',
-      feat4t: 'دعم متنوع', feat4d: 'وسائل تبرع متعددة تسهّل المشاركة وتمنح الزائر تجربة واضحة ومريحة.',
+      feat4t: 'تجربة واضحة', feat4d: 'عرض منظم وواضح يسهل على الزائر متابعة الحملات والنتائج بثقة وراحة.',
       journeyTitle: 'كيف تتحول المساهمة إلى أثر؟', step1: 'استقبال احتياج المسجد أو المشروع', step2: 'إطلاق الحملة وتحديد الهدف', step3: 'تحديث المبالغ والتقدم بشفافية', step4: 'عرض النتيجة والإنجاز للمجتمع',
       previewTitle: 'نماذج من الحملات السابقة', previewLead: 'كل بطاقة تمثل مشروعًا حقيقيًا ساهمت فيه الحملة داخل مدن السويد.',
       donateTitle: 'كن جزءًا من صدقة جارية ممتدة', donateText: 'اختر الوسيلة الأنسب لك وادعم إعمار وتطوير المساجد في مختلف المدن السويدية.',
@@ -53,7 +53,7 @@
       feat1t: 'Direkt transparens', feat1d: 'Tydlig visning av belopp, mål och procent som stärker besökarens förtroende.',
       feat2t: 'Karta över insatserna', feat2d: 'Varje moské visas på Sverigekartan med en snabb informationsruta.',
       feat3t: 'Tillit och trovärdighet', feat3d: 'Responsiv, snabb och stilren design med stöd för både arabiska och svenska.',
-      feat4t: 'Flera sätt att ge', feat4d: 'Flera donationssätt gör det enkelt att delta med tydlighet och trygghet.',
+      feat4t: 'Tydlig upplevelse', feat4d: 'En ren och tydlig presentation som gör det enkelt att följa kampanjer och resultat.',
       journeyTitle: 'Hur blir ditt stöd till verklig påverkan?', step1: 'Vi tar emot behov från moskéer och projekt', step2: 'Vi lanserar kampanjen och sätter målet', step3: 'Vi uppdaterar belopp och framsteg öppet', step4: 'Vi visar slutresultat och genomförda insatser',
       previewTitle: 'Urval av tidigare kampanjer', previewLead: 'Varje kort representerar ett verkligt projekt som kampanjen har bidragit till i Sverige.',
       donateTitle: 'Bli en del av en pågående sadaqa jariya', donateText: 'Välj det sätt som passar dig bäst och stöd renovering och utveckling av moskéer i hela Sverige.',
@@ -74,6 +74,7 @@
       whatsapp: 'WhatsApp', email: 'E-post', sendMsg: 'Skicka ditt meddelande', name: 'Fullständigt namn', mosqueName: 'Moskéens namn', phone: 'Telefonnummer', message: 'Ditt meddelande', submit: 'Skicka förfrågan',
       footerText: 'Vi Mår Bra — ideell kampanj för att bygga och utveckla moskéer i Sverige.',
       popupYear: 'Datum', popupCollected: 'Insamlat', popupFull: 'Fullt belopp', popupProgress: 'Procent', popupStatus: 'Projektstatus', fundingStatus: 'Insamlingsstatus',
+      fundingComplete: 'Insamlingen är klar', fundingOpen: 'Insamlingen pågår',
       started: 'Projektstart', active: 'Pågående', completed: 'Slutförd', currency: 'kr',
       locationLabel: 'Plats', amountLive: 'Löpande uppdateringar', contactSuccess: 'Tack. Formuläret är förberett för att skicka ditt meddelande direkt till organisationens e-post.'
     }
@@ -228,8 +229,19 @@
     }
 
     if (!window.vmbMap) {
-      window.vmbMap = L.map('campaignsMap', { scrollWheelZoom: false, zoomControl: true }).setView([62.2, 16.5], 5);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(window.vmbMap);
+      window.vmbMap = L.map('campaignsMap', { scrollWheelZoom: false, zoomControl: true, preferCanvas: true }).setView([62.2, 16.5], 5);
+      const tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19
+      });
+      tileLayer.on('tileerror', function () {
+        mapTarget.innerHTML = '<div class="d-flex align-items-center justify-content-center h-100 small-muted p-4">تعذر تحميل الخريطة حالياً</div>';
+      });
+      tileLayer.addTo(window.vmbMap);
+      setTimeout(() => window.vmbMap.invalidateSize(), 200);
+    } else {
+      setTimeout(() => window.vmbMap.invalidateSize(), 200);
     }
     if (window.vmbMarkers) window.vmbMarkers.forEach(marker => window.vmbMap.removeLayer(marker));
 
@@ -434,8 +446,13 @@
       const lat = match ? match.lat : 62.0;
       const lng = match ? match.lng : 15.0;
       if (!window.currentMap) {
-        window.currentMap = L.map('currentCampaignMap', { scrollWheelZoom: false, zoomControl: true }).setView([lat, lng], match ? 7 : 5);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(window.currentMap);
+        window.currentMap = L.map('currentCampaignMap', { scrollWheelZoom: false, zoomControl: true, preferCanvas: true }).setView([lat, lng], 7);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+          subdomains: 'abcd',
+          maxZoom: 19
+        }).addTo(window.currentMap);
+        setTimeout(() => window.currentMap.invalidateSize(), 200);
       } else {
         window.currentMap.setView([lat, lng], match ? 7 : 5);
       }

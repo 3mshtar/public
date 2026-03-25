@@ -406,3 +406,11 @@ textarea.form-control { min-height: 180px; }
 .mosque-item .card-soft strong { font-size: .95rem; }
 
 
+
+
+#campaignsMap, #currentCampaignMap {
+  background: #eef4f1;
+}
+.map-shell {
+  background: #eef4f1;
+}
