@@ -294,6 +294,11 @@ window.VMB_DATA = {
     "sourceLabel": "Google Apps Script",
     "sheetName": "CurrentCampaign"
   },
+  "currentCampaignLinks": {
+    "swish": "https://app.swish.nu/1/p/sw/?sw=1230031187&msg=&src=qr",
+    "stripe": "https://buy.stripe.com/fZuaEXcPdgGD1sndx69AA0h",
+    "paypal": "https://www.paypal.com/qrcodes/managed/d81ee531-e0ad-48c1-b654-a1a029da6144?utm_source=old_merchant_lp"
+  },
   "links": {
     "membership": "https://buy.stripe.com/9B6fZ91MD5Chdv2acKdwc02",
     "swish": "https://app.swish.nu/1/p/sw/?sw=1234242483&msg=&edit=msg&src=qr",
