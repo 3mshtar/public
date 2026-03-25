@@ -1,0 +1,12 @@
+RewriteEngine On
+
+# Redirect .html URLs to clean folder URLs
+RewriteCond %{THE_REQUEST} \s/+(.*)\.html[\s?] [NC]
+RewriteRule ^ %1/ [R=301,L]
+
+# Serve folder-style URLs without showing .html
+RewriteRule ^about/?$ about/index.html [L]
+RewriteRule ^campaigns/?$ campaigns/index.html [L]
+RewriteRule ^current/?$ current/index.html [L]
+RewriteRule ^membership/?$ membership/index.html [L]
+RewriteRule ^contact/?$ contact/index.html [L]
