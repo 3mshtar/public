@@ -520,7 +520,7 @@
     initCampaignsMap();
     renderCurrentCampaign();
     if (document.getElementById('currentCampaignBox')) {
-      window.setInterval(renderCurrentCampaign, 10000);
+      window.setInterval(renderCurrentCampaign, 30000);
     }
     hydrateLinks();
     initReveal();
@@ -533,7 +533,7 @@
     initCampaignsMap();
     renderCurrentCampaign();
     if (document.getElementById('currentCampaignBox')) {
-      window.setInterval(renderCurrentCampaign, 10000);
+      window.setInterval(renderCurrentCampaign, 30000);
     }
     hydrateLinks();
     initReveal();
