@@ -138,7 +138,7 @@ window.VMB_DATA = {
       "city": "Falköping",
       "year": "Feb 2024",
       "cost": 4000000,
-      "progress": 10,
+      "progress": 100,
       "status": "active",
       "lat": 58.1736,
       "lng": 13.5507
