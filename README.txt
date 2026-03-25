@@ -17,3 +17,16 @@ Vi Mår Bra - one.com upload notes
 
 
 Important v4 fix: all internal asset and page paths are now relative, so the site works correctly on one.com and also when you preview files inside a folder.
+
+
+GOOGLE APPS SCRIPT
+------------------
+A ready script file is included at the site root:
+  google-apps-script-current-campaign.gs
+
+Paste it into Apps Script, deploy as a Web App, then copy the URL into:
+  assets/js/data.js
+field:
+  currentCampaignSheet.appsScriptUrl
+
+The current campaign is configured for Katrineholms moské with a goal of 1,500,000 KR.

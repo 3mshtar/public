@@ -277,19 +277,21 @@ window.VMB_DATA = {
     }
   ],
   "currentCampaign": {
-    "title": "VMB Aktuell insamling",
-    "location": "Sverige",
-    "goal": 6000000,
-    "raised": 4996151,
-    "remaining": 1003849,
-    "progress": 83.27,
-    "updatedAt": "Live via Google Sheet",
-    "notes": "Insamlingen uppdateras direkt från det publicerade kalkylbladet."
+    "title": "Katrineholms moské",
+    "location": "Katrineholm",
+    "goal": 1500000,
+    "raised": 0,
+    "remaining": 1500000,
+    "progress": 0,
+    "updatedAt": "Ready for Apps Script",
+    "notes": "يتم تحديث هذه الحملة من Google Apps Script بشكل مستقل عن صفحة الحملات السابقة."
   },
   "currentCampaignSheet": {
+    "appsScriptUrl": "https://script.google.com/macros/s/AKfycbzyThwnIZiGQyUqLsh77g45a6zKayCSlR8qlapKk8gbgMU8OBabpELBoqk_ZPcOrNAI/exec",
     "csvUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRIc-ljOLdzN9Mps4xTrl-cKU530leLeCIMbkVhSAuUBeH2pM3vQfI8c2TQixfBxDHOs3GeVkiz7aZs/pub?output=csv",
     "jsonUrl": "",
-    "sourceLabel": "Google Sheet Live CSV"
+    "sourceLabel": "Google Apps Script / Google Sheet",
+    "sheetName": "CurrentCampaign"
   },
   "links": {
     "membership": "https://buy.stripe.com/9B6fZ91MD5Chdv2acKdwc02",

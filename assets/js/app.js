@@ -12,9 +12,9 @@
       stat1: 'مسجدًا ساهمنا فيه', stat2: 'إجمالي الميزانية', stat3: 'مشاريع مكتملة', stat4: 'لغتان',
       homeBlockTitle: 'منصة تجمع الجمال والثقة والوضوح', homeBlockText: 'تم تصميم الموقع ليقدم رحلة متكاملة: قصة الحملة، إنجازات سابقة، حملة حالية متصلة بالتحديثات، عضوية داعمة، ووسائل تواصل وتبرع سهلة على كل جهاز.',
       whyTitle: 'لماذا Vi Mår Bra مختلفة؟', whyLead: 'ليست مجرد صفحة تبرع، بل واجهة مؤثرة توضح أين يذهب الدعم وكيف يتحول إلى صدقة جارية تخدم بيوت الله والمجتمع.',
-      feat1t: 'شفافية حية', feat1d: 'الأرقام والمستهدف والتقدم معروضة بوضوح ليبقى الزائر على اطلاع دائم.',
+      feat1t: 'شفافية حية', feat1d: 'عرض واضح للمبالغ والأهداف ونسب التقدم بما يعزز الثقة لدى الزائر والمتبرع.',
       feat2t: 'خريطة الإنجاز', feat2d: 'كل مسجد يظهر على خريطة السويد مع نافذة معلومات مختصرة وسهلة.',
-      feat3t: 'ثقة ومصداقية', feat3d: 'عرض منظم للحملات السابقة والحالة الحالية والبيانات الأساسية لكل مشروع بصورة موثوقة.',
+      feat3t: 'أمانة في العرض', feat3d: 'عرض أمين للحملات والبيانات والحالة الحالية لكل مشروع دون مبالغة أو غموض.',
       feat4t: 'دعم متنوع', feat4d: 'تبرع عبر Swish وStripe وPayPal، مع عضوية شهرية مباشرة من الموقع.',
       journeyTitle: 'كيف تتحول المساهمة إلى أثر؟', step1: 'استقبال احتياج المسجد أو المشروع', step2: 'إطلاق الحملة وتحديد الهدف', step3: 'تحديث المبالغ والتقدم بشفافية', step4: 'عرض النتيجة والإنجاز للمجتمع',
       previewTitle: 'نماذج من الحملات السابقة', previewLead: 'كل بطاقة تمثل مشروعًا حقيقيًا ساهمت فيه الحملة داخل مدن السويد.',
@@ -22,9 +22,9 @@
       donateSwish: 'التبرع عبر Swish', donateStripe: 'التبرع عبر Stripe', donatePaypal: 'التبرع عبر PayPal',
       campaignsTitle: 'الحملات السابقة والإنجازات', campaignsLead: 'خريطة وقائمة توضح لكل مسجد: تم جمع، المبلغ الكامل، النسبة، وحالة المشروع.',
       totalCollected: 'إجمالي ما جمعناه', totalMosques: 'إجمالي المساجد', completedProjects: 'اكتمل جمع المبلغ', totalFull: 'إجمالي المبالغ الكاملة',
-      currentTitle: 'الحملة الحالية', currentLead: 'أرقام الحملة الحالية تتحدث بلغة واضحة، ويمكن مزامنتها مباشرة من Google Sheet المنشور.',
+      currentTitle: 'الحملة الحالية', currentLead: 'الحملة الحالية مستقلة عن الحملات السابقة، وتُحدَّث أرقامها مباشرة من Google Apps Script أو من رابط البيانات المخصص لها.',
       goal: 'المبلغ الكامل', raised: 'المبلغ المحصل', remaining: 'المبلغ المتبقي', lastUpdated: 'آخر تحديث', donateNow: 'ادعم الحملة الآن',
-      currentHint: 'يتم تحديث هذه البطاقة بشكل حي من ملف البيانات المنشور.', currentLocation: 'موقع الحملة الحالية', liveSync: 'مزامنة مباشرة',
+      currentHint: 'تُحدَّث هذه الحملة من مصدرها الخاص دون ربطها بالحملات السابقة.', currentLocation: 'موقع الحملة الحالية', liveSync: 'مزامنة مباشرة',
       membershipTitle: 'عضوية داعمة مستمرة', membershipLead: 'ادخل كعضو مساهم وكن جزءًا من العطاء المستمر الذي يبني المساجد ويدعم المشاريع ذات الأولوية.',
       membershipCardTitle: 'عضوية Vi Mår Bra', membershipCardText: 'الاشتراك يتم بشكل آمن عبر Stripe Checkout، ليكون دعمك الشهري ثابتًا وسهلًا.', membershipBtn: 'اشترك الآن',
       member1: 'مساهمة شهرية سهلة', member2: 'دعم أسرع للمشاريع ذات الأولوية', member3: 'وسيلة آمنة واحترافية للدفع', donationMethodsTitle: 'طرق التبرع الأخرى',
@@ -352,17 +352,47 @@
   async function loadCurrentCampaign() {
     const current = { ...data.currentCampaign };
     const cfg = data.currentCampaignSheet || {};
-    if (!cfg.csvUrl) return current;
-    try {
-      const res = await fetch(cfg.csvUrl, { cache: 'no-store' });
+
+    async function applyRowsFromCsv(url) {
+      const res = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), { cache: 'no-store' });
       const text = await res.text();
       const rows = parseCsv(text);
-      const dynamic = readFlexibleCampaign(rows);
+      return readFlexibleCampaign(rows);
+    }
+
+    async function applyJsonFromAppsScript(url) {
+      const res = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), { cache: 'no-store' });
+      const payload = await res.json();
+      const src = payload && payload.data ? payload.data : payload;
+      if (!src || typeof src !== 'object') return null;
+      return {
+        ...current,
+        title: src.title || src.name || current.title,
+        location: src.location || src.city || current.location,
+        goal: toNumber(src.goal, current.goal),
+        raised: toNumber(src.raised, current.raised),
+        remaining: toNumber(src.remaining, current.remaining),
+        progress: toNumber(src.progress, current.progress),
+        updatedAt: src.updatedAt || src.updated_at || cfg.sourceLabel || current.updatedAt,
+        notes: src.notes || src.note || current.notes,
+        imageUrl: src.imageUrl || src.image || current.imageUrl
+      };
+    }
+
+    try {
+      let dynamic = null;
+      if (cfg.appsScriptUrl && !cfg.appsScriptUrl.includes('PASTE_YOUR')) {
+        dynamic = await applyJsonFromAppsScript(cfg.appsScriptUrl);
+      } else if (cfg.jsonUrl) {
+        dynamic = await applyJsonFromAppsScript(cfg.jsonUrl);
+      } else if (cfg.csvUrl) {
+        dynamic = await applyRowsFromCsv(cfg.csvUrl);
+      }
       if (dynamic) {
-        if (!dynamic.remaining && dynamic.goal && dynamic.raised) dynamic.remaining = Math.max(dynamic.goal - dynamic.raised, 0);
-        if (!dynamic.progress && dynamic.goal && dynamic.raised) dynamic.progress = (dynamic.raised / dynamic.goal) * 100;
+        if ((!dynamic.remaining && dynamic.remaining !== 0) && dynamic.goal && dynamic.raised >= 0) dynamic.remaining = Math.max(dynamic.goal - dynamic.raised, 0);
+        if ((!dynamic.progress && dynamic.progress !== 0) && dynamic.goal && dynamic.raised >= 0) dynamic.progress = (dynamic.raised / dynamic.goal) * 100;
         dynamic.updatedAt = dynamic.updatedAt || cfg.sourceLabel || 'Live';
-        return dynamic;
+        return { ...current, ...dynamic };
       }
       return current;
     } catch (err) {
@@ -389,6 +419,11 @@
     animateValue(document.getElementById('goalValue'), c.goal, 'currency');
     animateValue(document.getElementById('raisedValue'), c.raised, 'currency');
     animateValue(document.getElementById('remainingValue'), c.remaining, 'currency');
+
+    const imageEl = document.getElementById('currentCampaignImage');
+    const imageLink = document.getElementById('currentCampaignImageLink');
+    if (imageEl && c.imageUrl) imageEl.src = c.imageUrl;
+    if (imageLink) imageLink.href = '../current/index.html';
 
     const mapTarget = document.getElementById('currentCampaignMap');
     if (mapTarget && typeof L !== 'undefined') {
