@@ -275,7 +275,7 @@ img { max-width: 100%; }
   box-shadow: var(--vmb-shadow);
   border: 1px solid rgba(255,255,255,.9);
 }
-#campaignsMap, #currentCampaignMap { min-height: 620px; }
+#campaignsMap { min-height: 620px; }
 .leaflet-popup-content-wrapper { border-radius: 18px; }
 .progress {
   height: 12px;

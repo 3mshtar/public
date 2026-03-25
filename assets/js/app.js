@@ -440,26 +440,7 @@
     const imageLink = document.getElementById('currentCampaignImageLink');
     if (imageEl && c.imageUrl) imageEl.src = c.imageUrl;
     if (imageLink) imageLink.href = '../current/index.html';
-
-    const mapTarget = document.getElementById('currentCampaignMap');
-    if (mapTarget && typeof L !== 'undefined') {
-      const match = data.mosques.find(m => (c.location || '').toLowerCase().includes(m.city.toLowerCase()) || (c.title || '').toLowerCase().includes(m.city.toLowerCase()));
-      const lat = match ? match.lat : 62.0;
-      const lng = match ? match.lng : 15.0;
-      if (!window.currentMap) {
-        window.currentMap = L.map('currentCampaignMap', { scrollWheelZoom: false, zoomControl: true, preferCanvas: true }).setView([lat, lng], 7);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-          attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-          subdomains: 'abcd',
-          maxZoom: 19
-        }).addTo(window.currentMap);
-        setTimeout(() => window.currentMap.invalidateSize(), 200);
-      } else {
-        window.currentMap.setView([lat, lng], match ? 7 : 5);
-      }
-      if (window.currentMarker) window.currentMap.removeLayer(window.currentMarker);
-      window.currentMarker = L.marker([lat, lng]).addTo(window.currentMap).bindPopup(`<strong>${c.title}</strong><br>${c.location}`).openPopup();
-    }
+    // current campaign map removed by request
   }
 
   function hydrateLinks() {
