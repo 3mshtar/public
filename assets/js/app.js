@@ -312,7 +312,10 @@
     const cfg = data.currentCampaignSheet || {};
 
     async function applyRowsFromCsv(url) {
-      const res = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), { cache: 'no-store' });
+      const res = await fetch(
+        url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(),
+        { cache: 'no-store' }
+      );
       const text = await res.text();
       const rows = parseCsv(text);
       return readFlexibleCampaign(rows);
@@ -321,6 +324,7 @@
     function normalizeCampaignPayload(payload) {
       const src = payload && payload.data ? payload.data : payload;
       if (!src || typeof src !== 'object') return null;
+
       return {
         ...current,
         title: src.title || src.name || src.campaign || current.title,
@@ -336,7 +340,10 @@
     }
 
     async function applyJsonFromAppsScript(url) {
-      const res = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), { cache: 'no-store' });
+      const res = await fetch(
+        url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(),
+        { cache: 'no-store' }
+      );
       if (!res.ok) throw new Error('Apps Script fetch failed');
       const payload = await res.json();
       return normalizeCampaignPayload(payload);
@@ -344,7 +351,8 @@
 
     function applyJsonpFromAppsScript(url) {
       return new Promise((resolve, reject) => {
-        const callbackName = 'vmbJsonp_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+        const callbackName =
+          'vmbJsonp_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
         const script = document.createElement('script');
         let finished = false;
 
@@ -372,7 +380,12 @@
           reject(new Error('Apps Script JSONP timeout'));
         }, 12000);
 
-        script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + callbackName + '&t=' + Date.now();
+        script.src =
+          url +
+          (url.includes('?') ? '&' : '?') +
+          'callback=' + callbackName +
+          '&t=' + Date.now();
+
         document.body.appendChild(script);
       });
     }
@@ -383,7 +396,9 @@
       try {
         dynamic = await applyJsonFromAppsScript(cfg.appsScriptUrl);
       } catch (err) {
-        try { dynamic = await applyJsonpFromAppsScript(cfg.appsScriptUrl); } catch (err2) {}
+        try {
+          dynamic = await applyJsonpFromAppsScript(cfg.appsScriptUrl);
+        } catch (err2) {}
       }
     }
 
@@ -391,24 +406,34 @@
       try {
         dynamic = await applyJsonFromAppsScript(cfg.jsonUrl);
       } catch (err) {
-        try { dynamic = await applyJsonpFromAppsScript(cfg.jsonUrl); } catch (err2) {}
+        try {
+          dynamic = await applyJsonpFromAppsScript(cfg.jsonUrl);
+        } catch (err2) {}
       }
     }
 
     if (!dynamic && cfg.csvUrl) {
-      try { dynamic = await applyRowsFromCsv(cfg.csvUrl); } catch (err) {}
+      try {
+        dynamic = await applyRowsFromCsv(cfg.csvUrl);
+      } catch (err) {}
     }
 
     if (dynamic) {
-      if ((!dynamic.remaining && dynamic.remaining !== 0) && dynamic.goal && dynamic.raised >= 0) dynamic.remaining = Math.max(dynamic.goal - dynamic.raised, 0);
-      if ((!dynamic.progress && dynamic.progress !== 0) && dynamic.goal && dynamic.raised >= 0) dynamic.progress = (dynamic.raised / dynamic.goal) * 100;
+      if ((dynamic.remaining === undefined || dynamic.remaining === null) &&
+          dynamic.goal >= 0 && dynamic.raised >= 0) {
+        dynamic.remaining = Math.max(dynamic.goal - dynamic.raised, 0);
+      }
+
+      if ((dynamic.progress === undefined || dynamic.progress === null) &&
+          dynamic.goal > 0 && dynamic.raised >= 0) {
+        dynamic.progress = (dynamic.raised / dynamic.goal) * 100;
+      }
+
       dynamic.updatedAt = dynamic.updatedAt || cfg.sourceLabel || 'Live';
       return { ...current, ...dynamic };
     }
+
     return current;
-    } catch (err) {
-      return current;
-    }
   }
 
   async function renderCurrentCampaign() {
@@ -508,6 +533,14 @@
     items.forEach(el => observer.observe(el));
   }
 
+  let currentCampaignTimer = null;
+
+  function startCurrentCampaignTimer() {
+    if (!document.getElementById('currentCampaignBox')) return;
+    if (currentCampaignTimer) clearInterval(currentCampaignTimer);
+    currentCampaignTimer = window.setInterval(renderCurrentCampaign, 30000);
+  }
+
   document.addEventListener('click', function (e) {
     const btn = e.target.closest('[data-lang-btn]');
     if (!btn) return;
@@ -517,9 +550,7 @@
     renderPreview();
     initCampaignsMap();
     renderCurrentCampaign();
-    if (document.getElementById('currentCampaignBox')) {
-      window.setInterval(renderCurrentCampaign, 30000);
-    }
+    startCurrentCampaignTimer();
     hydrateLinks();
     initReveal();
   });
@@ -530,9 +561,7 @@
     renderPreview();
     initCampaignsMap();
     renderCurrentCampaign();
-    if (document.getElementById('currentCampaignBox')) {
-      window.setInterval(renderCurrentCampaign, 30000);
-    }
+    startCurrentCampaignTimer();
     hydrateLinks();
     initReveal();
   });
