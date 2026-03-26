@@ -1,79 +1,50 @@
 /**
- * Google Apps Script Web App for Vi Mar Bra current campaign.
+ * Google Apps Script Web App for Vi Mår Bra current campaign.
  *
- * This version is tolerant to different sheet layouts:
- * 1) key in column A, value in column B
- * 2) value in column A, label in column B
- * 3) Arabic, Swedish, or English labels
- * 4) optional header row tables
- *
- * Recommended simple layout (either order works):
- * title / Katrineholms moske
- * location / Katrineholm
- * goal / 1500000
- * raised / 10900
- * remaining / 1489100
- * progress / 0.7   or leave empty to auto-calculate
+ * Supports both layouts:
+ * 1) key in column A and value in column B
+ * 2) value in column A and key in column B
  */
 function doGet(e) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName('CurrentCampaign') || ss.getSheets()[0];
-  var values = sheet.getDataRange().getDisplayValues();
-  var extracted = extractCampaignData(values);
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('CurrentCampaign') || ss.getSheets()[0];
+  const values = sheet.getDataRange().getDisplayValues();
+  const data = readPairs(values);
 
-  var goal = firstNumber(extracted.goal, extracted.target, extracted.amount, extracted.total, extracted.malsumman);
-  var raised = firstNumber(
-    extracted.raised,
-    extracted.collected,
-    extracted.insamlat,
-    extracted.sum,
-    extracted.collectedamount,
-    extracted.raisedamount
-  );
-  var remaining = firstNumber(extracted.remaining, extracted.kvar, extracted.left, Math.max(goal - raised, 0));
+  const goal = pickNumber(data, ['goal', 'target', 'amount', 'total', 'full', 'fullamount', 'malsumman', 'mål', 'المبلغ المطلوب', 'المبلغ الكامل', 'الهدف', 'الهدف الاجمالي']);
+  let raised = pickNumber(data, ['raised', 'collected', 'insamlat', 'المبلغ المحصل', 'المبلغ المجموع', 'المبلغ المجمع', 'المحصل', 'المجموع']);
+  let remaining = pickNumber(data, ['remaining', 'kvar', 'left', 'المبلغ المتبقي', 'المتبقي', 'الباقي']);
 
-  // Derive missing values when the sheet only contains goal + remaining or goal + raised.
-  if ((!raised || raised <= 0) && goal > 0 && remaining > 0 && remaining <= goal) {
+  if (!isFiniteNumber(raised) && isFiniteNumber(goal) && isFiniteNumber(remaining)) {
     raised = Math.max(goal - remaining, 0);
   }
-  if ((!remaining || remaining < 0) && goal >= 0 && raised >= 0 && goal >= raised) {
+  if (!isFiniteNumber(remaining) && isFiniteNumber(goal) && isFiniteNumber(raised)) {
     remaining = Math.max(goal - raised, 0);
   }
 
-  var progress = extracted.progress !== '' && extracted.progress !== null && extracted.progress !== undefined
-    ? toNumber(extracted.progress)
-    : (goal > 0 ? (raised / goal) * 100 : 0);
+  const progress = isFiniteNumber(goal) && goal > 0 && isFiniteNumber(raised)
+    ? (raised / goal) * 100
+    : 0;
 
-  if (progress > 0 && progress <= 1) progress = progress * 100;
-  if ((!remaining || remaining < 0) && goal >= raised) remaining = Math.max(goal - raised, 0);
-
-  var payload = {
+  const payload = {
     ok: true,
     data: {
-      title: firstText(extracted.title, extracted.name, 'Katrineholms moske'),
-      location: firstText(extracted.location, extracted.city, 'Katrineholm'),
-      goal: goal,
-      raised: raised,
-      remaining: remaining,
+      title: pickText(data, ['title', 'name', 'campaign'], 'Katrineholms moské'),
+      location: pickText(data, ['location', 'city'], 'Katrineholm'),
+      goal: isFiniteNumber(goal) ? goal : 0,
+      raised: isFiniteNumber(raised) ? raised : 0,
+      remaining: isFiniteNumber(remaining) ? remaining : 0,
       progress: progress,
-      updatedAt: firstText(
-        extracted.updatedAt,
-        extracted.updated_at,
-        Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss')
-      ),
-      notes: firstText(extracted.notes, extracted.note, ''),
-      imageUrl: firstText(extracted.imageUrl, extracted.image, '')
-    },
-    debug: {
-      extractedKeys: Object.keys(extracted),
-      rowCount: values.length
+      updatedAt: pickText(data, ['updatedat', 'updated_at', 'lastupdated', 'آخر تحديث'], new Date().toISOString()),
+      notes: pickText(data, ['notes', 'note', 'ملاحظات'], ''),
+      imageUrl: pickText(data, ['imageurl', 'image'], '')
     }
   };
 
-  var callback = e && e.parameter && e.parameter.callback;
+  const callback = e && e.parameter && e.parameter.callback;
   if (callback) {
     return ContentService
-      .createTextOutput(callback + '(' + JSON.stringify(payload) + ');')
+      .createTextOutput(callback + '(' + JSON.stringify(payload) + ')')
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
 
@@ -82,129 +53,94 @@ function doGet(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-function extractCampaignData(values) {
-  var out = {};
-  if (!values || !values.length) return out;
+function readPairs(values) {
+  const data = {};
+  values.forEach(function(row) {
+    const a = (row[0] || '').toString().trim();
+    const b = (row[1] || '').toString().trim();
+    if (!a && !b) return;
 
-  for (var i = 0; i < values.length; i++) {
-    var row = values[i] || [];
-    var a = cleanCell(row[0]);
-    var b = cleanCell(row[1]);
-    if (!a && !b) continue;
+    const aNum = toNumber(a, NaN);
+    const bNum = toNumber(b, NaN);
 
-    var keyA = canonicalKey(a);
-    var keyB = canonicalKey(b);
-
-    if (keyA && !out[keyA]) {
-      out[keyA] = b;
-      continue;
+    if (!isFiniteNumber(aNum) && b) {
+      data[normalizeKey(a)] = b;
     }
-    if (keyB && !out[keyB]) {
-      out[keyB] = a;
-      continue;
+    if (!isFiniteNumber(bNum) && a) {
+      data[normalizeKey(b)] = a;
     }
-
-    // Header row format support: title, location, goal, raised, remaining...
-    if (i === 0 && row.length >= 2) {
-      var headers = row.map(function(cell) { return canonicalKey(cell); });
-      var hasKnownHeader = headers.some(function(h) { return !!h; });
-      if (hasKnownHeader && values[i + 1]) {
-        var dataRow = values[i + 1];
-        for (var c = 0; c < headers.length; c++) {
-          if (headers[c]) out[headers[c]] = cleanCell(dataRow[c]);
-        }
-        break;
-      }
-    }
-  }
-
-  return out;
+  });
+  return data;
 }
 
-function canonicalKey(value) {
-  var raw = normalizeKey(value);
-  if (!raw) return '';
+function normalizeKey(key) {
+  return String(key || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[ً-ٰٟ]/g, '')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
-  var aliases = {
-    title: ['title', 'name', 'campaign', 'campaign name', 'اسم الحملة', 'اسم المشروع', 'العنوان'],
-    location: ['location', 'city', 'place', 'المدينة', 'الموقع', 'مكان', 'موقع الحملة'],
-    goal: ['goal', 'target', 'amount', 'total', 'malsumman', 'mal', 'المبلغ المطلوب', 'المبلغ الكامل', 'الهدف', 'الهدف الاجمالي', 'الهدف الإجمالي'],
-    raised: ['raised', 'collected', 'insamlat', 'sum', 'collected amount', 'raised amount', 'المبلغ المجموع', 'المبلغ المحصل', 'المبلغ المجمع', 'المجموع', 'تم جمع'],
-    remaining: ['remaining', 'kvar', 'left', 'المتبقي', 'المبلغ المتبقي', 'الباقي'],
-    progress: ['progress', 'percentage', 'percent', 'النسبة', 'نسبة', 'التقدم'],
-    updatedAt: ['updatedat', 'updated_at', 'last updated', 'آخر تحديث', 'اخر تحديث', 'تحديث'],
-    notes: ['notes', 'note', 'ملاحظات', 'ملاحظة'],
-    imageUrl: ['imageurl', 'image', 'img', 'photo', 'صورة', 'رابط الصورة']
-  };
+function pickText(data, keys, fallback) {
+  for (var i = 0; i < keys.length; i++) {
+    var k = normalizeKey(keys[i]);
+    if (data[k] !== undefined && data[k] !== null && String(data[k]).trim() !== '') return String(data[k]).trim();
+  }
+  return fallback;
+}
 
-  for (var key in aliases) {
-    for (var i = 0; i < aliases[key].length; i++) {
-      if (raw === normalizeKey(aliases[key][i])) return key;
+function pickNumber(data, keys) {
+  for (var i = 0; i < keys.length; i++) {
+    var k = normalizeKey(keys[i]);
+    if (data[k] !== undefined && data[k] !== null && String(data[k]).trim() !== '') {
+      var n = toNumber(data[k], NaN);
+      if (isFiniteNumber(n)) return n;
     }
   }
-
-  if (raw.indexOf('kvar') !== -1 || raw.indexOf('المتبقي') !== -1 || raw.indexOf('الباقي') !== -1) return 'remaining';
-  if ((raw.indexOf('المبلغ') !== -1 && (raw.indexOf('محصل') !== -1 || raw.indexOf('مجموع') !== -1 || raw.indexOf('مجمع') !== -1)) || raw.indexOf('insamlat') !== -1) return 'raised';
-  if ((raw.indexOf('المبلغ') !== -1 && (raw.indexOf('مطلوب') !== -1 || raw.indexOf('كامل') !== -1)) || raw.indexOf('malsumman') !== -1) return 'goal';
-
-  return '';
+  return NaN;
 }
 
-function normalizeKey(value) {
-  var raw = cleanCell(value).toLowerCase();
-  raw = raw.replace(/[‏‎]/g, '');
-  raw = raw.replace(/[ً-ٰٟ]/g, '');
-  raw = raw.replace(/[إأآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه');
-  raw = raw.replace(/[_-]+/g, ' ');
-  raw = raw.replace(/\s+/g, ' ').trim();
-  return raw;
+function isFiniteNumber(value) {
+  return typeof value === 'number' && !isNaN(value) && isFinite(value);
 }
 
-function cleanCell(value) {
-  return (value === null || value === undefined) ? '' : String(value).trim();
-}
+function toNumber(value, fallback) {
+  if (value === null || value === undefined || value === '') return fallback;
+  if (typeof value === 'number') return isFiniteNumber(value) ? value : fallback;
 
-function firstText() {
-  for (var i = 0; i < arguments.length; i++) {
-    var v = arguments[i];
-    if (v !== null && v !== undefined && String(v).trim() !== '') return String(v).trim();
-  }
-  return '';
-}
+  var s = String(value).trim();
+  if (!s) return fallback;
 
-function firstNumber() {
-  for (var i = 0; i < arguments.length; i++) {
-    var v = arguments[i];
-    if (v !== null && v !== undefined && String(v).trim() !== '') return toNumber(v);
-  }
-  return 0;
-}
+  s = s.replace(/[٠-٩]/g, function(d) { return String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)); });
+  s = s.replace(/[۰-۹]/g, function(d) { return String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)); });
+  s = s.replace(/[^0-9,.-]/g, '');
+  if (!s) return fallback;
 
-function toNumber(value) {
-  if (value === null || value === undefined || value === '') return 0;
-  if (typeof value === 'number') return isNaN(value) ? 0 : value;
-
-  var text = String(value).trim();
-  text = text.replace(/\s+/g, '');
-  text = text.replace(/[^\d,.-]/g, '');
-
-  var hasComma = text.indexOf(',') !== -1;
-  var hasDot = text.indexOf('.') !== -1;
+  var hasComma = s.indexOf(',') !== -1;
+  var hasDot = s.indexOf('.') !== -1;
 
   if (hasComma && hasDot) {
-    if (text.lastIndexOf(',') > text.lastIndexOf('.')) {
-      text = text.replace(/\./g, '').replace(',', '.');
+    if (s.lastIndexOf(',') > s.lastIndexOf('.')) {
+      s = s.replace(/\./g, '').replace(',', '.');
     } else {
-      text = text.replace(/,/g, '');
+      s = s.replace(/,/g, '');
     }
   } else if (hasComma) {
-    if (/^\d{1,3}(,\d{3})+$/.test(text)) {
-      text = text.replace(/,/g, '');
+    var commaParts = s.split(',');
+    if (commaParts.length > 2 || (commaParts.length === 2 && commaParts[1].length === 3)) {
+      s = commaParts.join('');
     } else {
-      text = text.replace(',', '.');
+      s = s.replace(',', '.');
+    }
+  } else if (hasDot) {
+    var dotParts = s.split('.');
+    if (dotParts.length > 2 || (dotParts.length === 2 && dotParts[1].length === 3)) {
+      s = dotParts.join('');
     }
   }
 
-  var num = Number(text);
-  return isNaN(num) ? 0 : num;
+  var n = Number(s);
+  return isFiniteNumber(n) ? n : fallback;
 }

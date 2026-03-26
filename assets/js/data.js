@@ -289,7 +289,7 @@ window.VMB_DATA = {
   },
   "currentCampaignSheet": {
     "appsScriptUrl": "https://script.google.com/macros/s/AKfycbz25VCX8kGEHKubuwFskSi9kuluXnfb1k5v0JSxoOl7gvZqNQIXAzY9P_pencPuxwXi/exec",
-    "csvUrl": "",
+    "csvUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRIc-ljOLdzN9Mps4xTrl-cKU530leLeCIMbkVhSAuUBeH2pM3vQfI8c2TQixfBxDHOs3GeVkiz7aZs/pub?output=csv",
     "jsonUrl": "",
     "sourceLabel": "Google Apps Script",
     "sheetName": "CurrentCampaign"

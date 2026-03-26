@@ -128,6 +128,43 @@
     return formatted;
   }
 
+  function toNumber(value, fallback = 0) {
+    if (value === null || value === undefined || value === '') return fallback;
+    if (typeof value === 'number') return Number.isFinite(value) ? value : fallback;
+    let s = String(value).trim();
+    if (!s) return fallback;
+    s = s.replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
+    s = s.replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
+    s = s.replace(/[^0-9,.-]/g, '');
+    if (!s) return fallback;
+
+    const hasComma = s.includes(',');
+    const hasDot = s.includes('.');
+
+    if (hasComma && hasDot) {
+      if (s.lastIndexOf(',') > s.lastIndexOf('.')) {
+        s = s.replace(/\./g, '').replace(',', '.');
+      } else {
+        s = s.replace(/,/g, '');
+      }
+    } else if (hasComma) {
+      const parts = s.split(',');
+      if (parts.length > 2 || (parts.length === 2 && parts[1].length === 3)) {
+        s = parts.join('');
+      } else {
+        s = s.replace(',', '.');
+      }
+    } else if (hasDot) {
+      const parts = s.split('.');
+      if (parts.length > 2 || (parts.length === 2 && parts[1].length === 3)) {
+        s = parts.join('');
+      }
+    }
+
+    const n = Number(s);
+    return Number.isFinite(n) ? n : fallback;
+  }
+
   function translatePage() {
     const activeLang = lang();
     setDir(activeLang);
@@ -175,84 +212,6 @@
 
   function statusText(status) {
     return t(status);
-  }
-
-  function toNumber(value, fallback = 0) {
-    if (value === null || value === undefined || value === '') return fallback;
-    if (typeof value === 'number' && Number.isFinite(value)) return value;
-
-    const cleaned = String(value)
-      .replace(/\s+/g, '')
-      .replace(/[^\d,.-]/g, '')
-      .replace(/,(?=\d{3}(\D|$))/g, '')
-      .replace(',', '.');
-
-    const num = Number(cleaned);
-    return Number.isFinite(num) ? num : fallback;
-  }
-
-  function readFlexibleCampaign(rows) {
-    if (!Array.isArray(rows) || !rows.length) return null;
-
-    const current = { ...data.currentCampaign };
-    const kv = {};
-
-    rows.forEach((row) => {
-      const key = (row[0] || '').toString().trim();
-      const value = (row[1] || '').toString().trim();
-      if (key) kv[key] = value;
-    });
-
-    if (Object.keys(kv).length) {
-      const goal = toNumber(kv.goal ?? kv.target, current.goal);
-      const raised = toNumber(kv.raised ?? kv.collected, current.raised);
-      const remaining = kv.remaining !== undefined && kv.remaining !== ''
-        ? toNumber(kv.remaining, current.remaining)
-        : Math.max(goal - raised, 0);
-      const progress = kv.progress !== undefined && kv.progress !== ''
-        ? toNumber(kv.progress, current.progress)
-        : (goal > 0 ? (raised / goal) * 100 : 0);
-
-      return {
-        ...current,
-        title: kv.title || kv.name || current.title,
-        location: kv.location || kv.city || current.location,
-        goal,
-        raised,
-        remaining,
-        progress,
-        updatedAt: kv.updatedAt || 'Google Sheet',
-        notes: kv.notes || current.notes,
-        imageUrl: kv.imageUrl || current.imageUrl
-      };
-    }
-
-    const headers = rows[0].map((h) => (h || '').toString().trim().toLowerCase());
-    const dataRow = rows[1] || [];
-    const obj = {};
-    headers.forEach((h, i) => { obj[h] = dataRow[i]; });
-
-    const goal = toNumber(obj.goal ?? obj.target, current.goal);
-    const raised = toNumber(obj.raised ?? obj.collected, current.raised);
-    const remaining = obj.remaining !== undefined && obj.remaining !== ''
-      ? toNumber(obj.remaining, current.remaining)
-      : Math.max(goal - raised, 0);
-    const progress = obj.progress !== undefined && obj.progress !== ''
-      ? toNumber(obj.progress, current.progress)
-      : (goal > 0 ? (raised / goal) * 100 : 0);
-
-    return {
-      ...current,
-      title: obj.title || obj.name || current.title,
-      location: obj.location || obj.city || current.location,
-      goal,
-      raised,
-      remaining,
-      progress,
-      updatedAt: obj.updatedat || 'Google Sheet',
-      notes: obj.notes || current.notes,
-      imageUrl: obj.imageurl || current.imageUrl
-    };
   }
 
   function renderPreview() {
@@ -404,30 +363,28 @@
       if (!src || typeof src !== 'object') return null;
 
       const goal = toNumber((src.goal ?? src.target), current.goal);
-      let raised = toNumber((src.raised ?? src.collected ?? src.insamlat ?? src.sum), current.raised);
-      let remaining = src.remaining !== undefined && src.remaining !== null && src.remaining !== ''
-        ? toNumber(src.remaining, current.remaining)
-        : Math.max(goal - raised, 0);
+      let raised = toNumber((src.raised ?? src.collected), NaN);
+      let remaining = toNumber(src.remaining, NaN);
 
-      if ((!raised || raised <= 0) && goal > 0 && remaining > 0 && remaining <= goal) {
+      if (!Number.isFinite(raised) && Number.isFinite(goal) && Number.isFinite(remaining)) {
         raised = Math.max(goal - remaining, 0);
       }
-      if ((remaining === undefined || remaining === null || remaining < 0) && goal >= 0 && raised >= 0 && goal >= raised) {
+      if (!Number.isFinite(remaining) && Number.isFinite(goal) && Number.isFinite(raised)) {
         remaining = Math.max(goal - raised, 0);
       }
 
-      const progress = src.progress !== undefined && src.progress !== null && src.progress !== ''
-        ? toNumber(src.progress, current.progress)
-        : (goal > 0 ? (raised / goal) * 100 : 0);
+      const progress = goal > 0 && Number.isFinite(raised)
+        ? (raised / goal) * 100
+        : toNumber(src.progress, current.progress);
 
       return {
         ...current,
         title: src.title || src.name || src.campaign || current.title,
         location: src.location || src.city || current.location,
         goal,
-        raised,
-        remaining,
-        progress,
+        raised: Number.isFinite(raised) ? raised : current.raised,
+        remaining: Number.isFinite(remaining) ? remaining : current.remaining,
+        progress: Number.isFinite(progress) ? progress : current.progress,
         updatedAt: src.updatedAt || src.updated_at || cfg.sourceLabel || current.updatedAt,
         notes: src.notes || src.note || current.notes,
         imageUrl: src.imageUrl || src.image || current.imageUrl
@@ -440,15 +397,7 @@
         { cache: 'no-store' }
       );
       if (!res.ok) throw new Error('Apps Script fetch failed');
-      const text = await res.text();
-      let payload = null;
-      try {
-        payload = JSON.parse(text);
-      } catch (e) {
-        const match = text.match(/^[^(]+\((.*)\)\s*;?$/s);
-        if (match) payload = JSON.parse(match[1]);
-      }
-      if (!payload) throw new Error('Apps Script response parse failed');
+      const payload = await res.json();
       return normalizeCampaignPayload(payload);
     }
 
