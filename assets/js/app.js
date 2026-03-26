@@ -337,25 +337,27 @@
       };
     }
 
-    try {
-      let dynamic = null;
-      if (cfg.appsScriptUrl && !cfg.appsScriptUrl.includes('PASTE_YOUR')) {
-        dynamic = await applyJsonFromAppsScript(cfg.appsScriptUrl);
-      } else if (cfg.jsonUrl) {
-        dynamic = await applyJsonFromAppsScript(cfg.jsonUrl);
-      } else if (cfg.csvUrl) {
-        dynamic = await applyRowsFromCsv(cfg.csvUrl);
-      }
-      if (dynamic) {
-        if ((!dynamic.remaining && dynamic.remaining !== 0) && dynamic.goal && dynamic.raised >= 0) dynamic.remaining = Math.max(dynamic.goal - dynamic.raised, 0);
-        if ((!dynamic.progress && dynamic.progress !== 0) && dynamic.goal && dynamic.raised >= 0) dynamic.progress = (dynamic.raised / dynamic.goal) * 100;
-        dynamic.updatedAt = dynamic.updatedAt || cfg.sourceLabel || 'Live';
-        return { ...current, ...dynamic };
-      }
-      return current;
-    } catch (err) {
-      return current;
+    let dynamic = null;
+
+    if (cfg.appsScriptUrl && !cfg.appsScriptUrl.includes('PASTE_YOUR')) {
+      try { dynamic = await applyJsonFromAppsScript(cfg.appsScriptUrl); } catch (err) {}
     }
+
+    if (!dynamic && cfg.jsonUrl) {
+      try { dynamic = await applyJsonFromAppsScript(cfg.jsonUrl); } catch (err) {}
+    }
+
+    if (!dynamic && cfg.csvUrl) {
+      try { dynamic = await applyRowsFromCsv(cfg.csvUrl); } catch (err) {}
+    }
+
+    if (dynamic) {
+      if ((!dynamic.remaining && dynamic.remaining !== 0) && dynamic.goal && dynamic.raised >= 0) dynamic.remaining = Math.max(dynamic.goal - dynamic.raised, 0);
+      if ((!dynamic.progress && dynamic.progress !== 0) && dynamic.goal && dynamic.raised >= 0) dynamic.progress = (dynamic.raised / dynamic.goal) * 100;
+      dynamic.updatedAt = dynamic.updatedAt || cfg.sourceLabel || 'Live';
+      return { ...current, ...dynamic };
+    }
+    return current;
   }
 
   async function renderCurrentCampaign() {
