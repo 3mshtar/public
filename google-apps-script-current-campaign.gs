@@ -1,55 +1,56 @@
 /**
  * Google Apps Script Web App for Vi Mar Bra current campaign.
  *
- * Suggested sheet layout in a tab named CurrentCampaign:
- * A1: title        B1: Katrineholms moske
- * A2: location     B2: Katrineholm
- * A3: goal         B3: 1500000
- * A4: raised       B4: 0
- * A5: remaining    B5: 1500000   (optional)
- * A6: progress     B6: 0         (optional)
- * A7: updatedAt    B7: auto      (optional)
- * A8: notes        B8: optional note
- * A9: imageUrl     B9: optional image URL
+ * This version is tolerant to different sheet layouts:
+ * 1) key in column A, value in column B
+ * 2) value in column A, label in column B
+ * 3) Arabic, Swedish, or English labels
+ * 4) optional header row tables
  *
- * Deploy:
- * 1) Extensions > Apps Script
- * 2) Paste this code into Code.gs
- * 3) Deploy > New deployment > Web app
- * 4) Execute as: Me
- * 5) Who has access: Anyone
- * 6) Keep the same web app URL in assets/js/data.js
+ * Recommended simple layout (either order works):
+ * title / Katrineholms moske
+ * location / Katrineholm
+ * goal / 1500000
+ * raised / 10900
+ * remaining / 1489100
+ * progress / 0.7   or leave empty to auto-calculate
  */
 function doGet(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('CurrentCampaign') || ss.getSheets()[0];
   var values = sheet.getDataRange().getDisplayValues();
-  var data = {};
+  var extracted = extractCampaignData(values);
 
-  values.forEach(function(row) {
-    var key = (row[0] || '').toString().trim();
-    var value = (row[1] || '').toString().trim();
-    if (!key) return;
-    data[key] = value;
-  });
+  var goal = firstNumber(extracted.goal, extracted.target, extracted.amount, extracted.total, extracted.malsumman);
+  var raised = firstNumber(extracted.raised, extracted.collected, extracted.insamlat, extracted.sum);
+  var remaining = firstNumber(extracted.remaining, extracted.kvar, Math.max(goal - raised, 0));
+  var progress = extracted.progress !== '' && extracted.progress !== null && extracted.progress !== undefined
+    ? toNumber(extracted.progress)
+    : (goal > 0 ? (raised / goal) * 100 : 0);
 
-  var goal = toNumber(data.goal || data.malsumman || data.amount || data.total);
-  var raised = toNumber(data.raised || data.insamlat || data.collected);
-  var remaining = data.remaining ? toNumber(data.remaining) : Math.max(goal - raised, 0);
-  var progress = data.progress ? toNumber(data.progress) : (goal > 0 ? (raised / goal) * 100 : 0);
+  if (progress > 0 && progress <= 1) progress = progress * 100;
+  if (!remaining && goal >= raised) remaining = Math.max(goal - raised, 0);
 
   var payload = {
     ok: true,
     data: {
-      title: data.title || 'Katrineholms moske',
-      location: data.location || 'Katrineholm',
+      title: firstText(extracted.title, extracted.name, 'Katrineholms moske'),
+      location: firstText(extracted.location, extracted.city, 'Katrineholm'),
       goal: goal,
       raised: raised,
       remaining: remaining,
       progress: progress,
-      updatedAt: data.updatedAt || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss'),
-      notes: data.notes || '',
-      imageUrl: data.imageUrl || ''
+      updatedAt: firstText(
+        extracted.updatedAt,
+        extracted.updated_at,
+        Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss')
+      ),
+      notes: firstText(extracted.notes, extracted.note, ''),
+      imageUrl: firstText(extracted.imageUrl, extracted.image, '')
+    },
+    debug: {
+      extractedKeys: Object.keys(extracted),
+      rowCount: values.length
     }
   };
 
@@ -65,13 +66,115 @@ function doGet(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+function extractCampaignData(values) {
+  var out = {};
+  if (!values || !values.length) return out;
+
+  for (var i = 0; i < values.length; i++) {
+    var row = values[i] || [];
+    var a = cleanCell(row[0]);
+    var b = cleanCell(row[1]);
+    if (!a && !b) continue;
+
+    var keyA = canonicalKey(a);
+    var keyB = canonicalKey(b);
+
+    if (keyA && !out[keyA]) {
+      out[keyA] = b;
+      continue;
+    }
+    if (keyB && !out[keyB]) {
+      out[keyB] = a;
+      continue;
+    }
+
+    // Header row format support: title, location, goal, raised, remaining...
+    if (i === 0 && row.length >= 2) {
+      var headers = row.map(function(cell) { return canonicalKey(cell); });
+      var hasKnownHeader = headers.some(function(h) { return !!h; });
+      if (hasKnownHeader && values[i + 1]) {
+        var dataRow = values[i + 1];
+        for (var c = 0; c < headers.length; c++) {
+          if (headers[c]) out[headers[c]] = cleanCell(dataRow[c]);
+        }
+        break;
+      }
+    }
+  }
+
+  return out;
+}
+
+function canonicalKey(value) {
+  var raw = cleanCell(value).toLowerCase();
+  if (!raw) return '';
+  raw = raw.replace(/[‏‎]/g, '').trim();
+
+  var aliases = {
+    title: ['title', 'name', 'campaign', 'campaign name', 'اسم الحملة', 'اسم المشروع', 'العنوان'],
+    location: ['location', 'city', 'place', 'المدينة', 'الموقع', 'مكان', 'موقع الحملة'],
+    goal: ['goal', 'target', 'amount', 'total', 'malsumman', 'mal', 'المبلغ المطلوب', 'المبلغ الكامل', 'الهدف', 'الهدف الاجمالي', 'الهدف الإجمالي'],
+    raised: ['raised', 'collected', 'insamlat', 'sum', 'المبلغ المجموع', 'المبلغ المحصل', 'المجموع', 'تم جمع'],
+    remaining: ['remaining', 'kvar', 'left', 'المتبقي', 'المبلغ المتبقي', 'الباقي'],
+    progress: ['progress', 'percentage', 'percent', 'النسبة', 'نسبة', 'التقدم'],
+    updatedAt: ['updatedat', 'updated_at', 'last updated', 'آخر تحديث', 'اخر تحديث', 'تحديث'],
+    notes: ['notes', 'note', 'ملاحظات', 'ملاحظة'],
+    imageUrl: ['imageurl', 'image', 'img', 'photo', 'صورة', 'رابط الصورة']
+  };
+
+  for (var key in aliases) {
+    for (var i = 0; i < aliases[key].length; i++) {
+      if (raw === aliases[key][i]) return key;
+    }
+  }
+  return '';
+}
+
+function cleanCell(value) {
+  return (value === null || value === undefined) ? '' : String(value).trim();
+}
+
+function firstText() {
+  for (var i = 0; i < arguments.length; i++) {
+    var v = arguments[i];
+    if (v !== null && v !== undefined && String(v).trim() !== '') return String(v).trim();
+  }
+  return '';
+}
+
+function firstNumber() {
+  for (var i = 0; i < arguments.length; i++) {
+    var v = arguments[i];
+    if (v !== null && v !== undefined && String(v).trim() !== '') return toNumber(v);
+  }
+  return 0;
+}
+
 function toNumber(value) {
   if (value === null || value === undefined || value === '') return 0;
-  var cleaned = String(value)
-    .replace(/\s+/g, '')
-    .replace(/[^\d,.-]/g, '')
-    .replace(/,(?=\d{3}(\D|$))/g, '')
-    .replace(',', '.');
-  var num = Number(cleaned);
+  if (typeof value === 'number') return isNaN(value) ? 0 : value;
+
+  var text = String(value).trim();
+  text = text.replace(/\s+/g, '');
+  text = text.replace(/[^\d,.-]/g, '');
+
+  var hasComma = text.indexOf(',') !== -1;
+  var hasDot = text.indexOf('.') !== -1;
+
+  if (hasComma && hasDot) {
+    if (text.lastIndexOf(',') > text.lastIndexOf('.')) {
+      text = text.replace(/\./g, '').replace(',', '.');
+    } else {
+      text = text.replace(/,/g, '');
+    }
+  } else if (hasComma) {
+    if (/^\d{1,3}(,\d{3})+$/.test(text)) {
+      text = text.replace(/,/g, '');
+    } else {
+      text = text.replace(',', '.');
+    }
+  }
+
+  var num = Number(text);
   return isNaN(num) ? 0 : num;
 }
