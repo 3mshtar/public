@@ -22,14 +22,30 @@ function doGet(e) {
   var extracted = extractCampaignData(values);
 
   var goal = firstNumber(extracted.goal, extracted.target, extracted.amount, extracted.total, extracted.malsumman);
-  var raised = firstNumber(extracted.raised, extracted.collected, extracted.insamlat, extracted.sum);
-  var remaining = firstNumber(extracted.remaining, extracted.kvar, Math.max(goal - raised, 0));
+  var raised = firstNumber(
+    extracted.raised,
+    extracted.collected,
+    extracted.insamlat,
+    extracted.sum,
+    extracted.collectedamount,
+    extracted.raisedamount
+  );
+  var remaining = firstNumber(extracted.remaining, extracted.kvar, extracted.left, Math.max(goal - raised, 0));
+
+  // Derive missing values when the sheet only contains goal + remaining or goal + raised.
+  if ((!raised || raised <= 0) && goal > 0 && remaining > 0 && remaining <= goal) {
+    raised = Math.max(goal - remaining, 0);
+  }
+  if ((!remaining || remaining < 0) && goal >= 0 && raised >= 0 && goal >= raised) {
+    remaining = Math.max(goal - raised, 0);
+  }
+
   var progress = extracted.progress !== '' && extracted.progress !== null && extracted.progress !== undefined
     ? toNumber(extracted.progress)
     : (goal > 0 ? (raised / goal) * 100 : 0);
 
   if (progress > 0 && progress <= 1) progress = progress * 100;
-  if (!remaining && goal >= raised) remaining = Math.max(goal - raised, 0);
+  if ((!remaining || remaining < 0) && goal >= raised) remaining = Math.max(goal - raised, 0);
 
   var payload = {
     ok: true,
@@ -106,15 +122,14 @@ function extractCampaignData(values) {
 }
 
 function canonicalKey(value) {
-  var raw = cleanCell(value).toLowerCase();
+  var raw = normalizeKey(value);
   if (!raw) return '';
-  raw = raw.replace(/[‏‎]/g, '').trim();
 
   var aliases = {
     title: ['title', 'name', 'campaign', 'campaign name', 'اسم الحملة', 'اسم المشروع', 'العنوان'],
     location: ['location', 'city', 'place', 'المدينة', 'الموقع', 'مكان', 'موقع الحملة'],
     goal: ['goal', 'target', 'amount', 'total', 'malsumman', 'mal', 'المبلغ المطلوب', 'المبلغ الكامل', 'الهدف', 'الهدف الاجمالي', 'الهدف الإجمالي'],
-    raised: ['raised', 'collected', 'insamlat', 'sum', 'المبلغ المجموع', 'المبلغ المحصل', 'المجموع', 'تم جمع'],
+    raised: ['raised', 'collected', 'insamlat', 'sum', 'collected amount', 'raised amount', 'المبلغ المجموع', 'المبلغ المحصل', 'المبلغ المجمع', 'المجموع', 'تم جمع'],
     remaining: ['remaining', 'kvar', 'left', 'المتبقي', 'المبلغ المتبقي', 'الباقي'],
     progress: ['progress', 'percentage', 'percent', 'النسبة', 'نسبة', 'التقدم'],
     updatedAt: ['updatedat', 'updated_at', 'last updated', 'آخر تحديث', 'اخر تحديث', 'تحديث'],
@@ -124,10 +139,25 @@ function canonicalKey(value) {
 
   for (var key in aliases) {
     for (var i = 0; i < aliases[key].length; i++) {
-      if (raw === aliases[key][i]) return key;
+      if (raw === normalizeKey(aliases[key][i])) return key;
     }
   }
+
+  if (raw.indexOf('kvar') !== -1 || raw.indexOf('المتبقي') !== -1 || raw.indexOf('الباقي') !== -1) return 'remaining';
+  if ((raw.indexOf('المبلغ') !== -1 && (raw.indexOf('محصل') !== -1 || raw.indexOf('مجموع') !== -1 || raw.indexOf('مجمع') !== -1)) || raw.indexOf('insamlat') !== -1) return 'raised';
+  if ((raw.indexOf('المبلغ') !== -1 && (raw.indexOf('مطلوب') !== -1 || raw.indexOf('كامل') !== -1)) || raw.indexOf('malsumman') !== -1) return 'goal';
+
   return '';
+}
+
+function normalizeKey(value) {
+  var raw = cleanCell(value).toLowerCase();
+  raw = raw.replace(/[‏‎]/g, '');
+  raw = raw.replace(/[ً-ٰٟ]/g, '');
+  raw = raw.replace(/[إأآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه');
+  raw = raw.replace(/[_-]+/g, ' ');
+  raw = raw.replace(/\s+/g, ' ').trim();
+  return raw;
 }
 
 function cleanCell(value) {

@@ -404,10 +404,18 @@
       if (!src || typeof src !== 'object') return null;
 
       const goal = toNumber((src.goal ?? src.target), current.goal);
-      const raised = toNumber((src.raised ?? src.collected), current.raised);
-      const remaining = src.remaining !== undefined && src.remaining !== null && src.remaining !== ''
+      let raised = toNumber((src.raised ?? src.collected ?? src.insamlat ?? src.sum), current.raised);
+      let remaining = src.remaining !== undefined && src.remaining !== null && src.remaining !== ''
         ? toNumber(src.remaining, current.remaining)
         : Math.max(goal - raised, 0);
+
+      if ((!raised || raised <= 0) && goal > 0 && remaining > 0 && remaining <= goal) {
+        raised = Math.max(goal - remaining, 0);
+      }
+      if ((remaining === undefined || remaining === null || remaining < 0) && goal >= 0 && raised >= 0 && goal >= raised) {
+        remaining = Math.max(goal - raised, 0);
+      }
+
       const progress = src.progress !== undefined && src.progress !== null && src.progress !== ''
         ? toNumber(src.progress, current.progress)
         : (goal > 0 ? (raised / goal) * 100 : 0);
