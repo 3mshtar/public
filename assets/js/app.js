@@ -318,14 +318,12 @@
       return readFlexibleCampaign(rows);
     }
 
-    async function applyJsonFromAppsScript(url) {
-      const res = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), { cache: 'no-store' });
-      const payload = await res.json();
+    function normalizeCampaignPayload(payload) {
       const src = payload && payload.data ? payload.data : payload;
       if (!src || typeof src !== 'object') return null;
       return {
         ...current,
-        title: src.title || src.name || current.title,
+        title: src.title || src.name || src.campaign || current.title,
         location: src.location || src.city || current.location,
         goal: toNumber((src.goal ?? src.target), current.goal),
         raised: toNumber((src.raised ?? src.collected), current.raised),
@@ -337,14 +335,64 @@
       };
     }
 
+    async function applyJsonFromAppsScript(url) {
+      const res = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) throw new Error('Apps Script fetch failed');
+      const payload = await res.json();
+      return normalizeCampaignPayload(payload);
+    }
+
+    function applyJsonpFromAppsScript(url) {
+      return new Promise((resolve, reject) => {
+        const callbackName = 'vmbJsonp_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+        const script = document.createElement('script');
+        let finished = false;
+
+        function cleanup() {
+          if (finished) return;
+          finished = true;
+          try { delete window[callbackName]; } catch (e) {}
+          try { script.remove(); } catch (e) {}
+          clearTimeout(timer);
+        }
+
+        window[callbackName] = function (payload) {
+          const normalized = normalizeCampaignPayload(payload);
+          cleanup();
+          resolve(normalized);
+        };
+
+        script.onerror = function () {
+          cleanup();
+          reject(new Error('Apps Script JSONP failed'));
+        };
+
+        const timer = setTimeout(() => {
+          cleanup();
+          reject(new Error('Apps Script JSONP timeout'));
+        }, 12000);
+
+        script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + callbackName + '&t=' + Date.now();
+        document.body.appendChild(script);
+      });
+    }
+
     let dynamic = null;
 
     if (cfg.appsScriptUrl && !cfg.appsScriptUrl.includes('PASTE_YOUR')) {
-      try { dynamic = await applyJsonFromAppsScript(cfg.appsScriptUrl); } catch (err) {}
+      try {
+        dynamic = await applyJsonFromAppsScript(cfg.appsScriptUrl);
+      } catch (err) {
+        try { dynamic = await applyJsonpFromAppsScript(cfg.appsScriptUrl); } catch (err2) {}
+      }
     }
 
     if (!dynamic && cfg.jsonUrl) {
-      try { dynamic = await applyJsonFromAppsScript(cfg.jsonUrl); } catch (err) {}
+      try {
+        dynamic = await applyJsonFromAppsScript(cfg.jsonUrl);
+      } catch (err) {
+        try { dynamic = await applyJsonpFromAppsScript(cfg.jsonUrl); } catch (err2) {}
+      }
     }
 
     if (!dynamic && cfg.csvUrl) {
@@ -358,6 +406,9 @@
       return { ...current, ...dynamic };
     }
     return current;
+    } catch (err) {
+      return current;
+    }
   }
 
   async function renderCurrentCampaign() {
