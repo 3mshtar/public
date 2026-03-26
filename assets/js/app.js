@@ -10,7 +10,7 @@
       heroLead: 'منصة خيرية غير ربحية تربط المتبرع بالأثر الحقيقي، وتعرض الإنجازات والاحتياجات الجارية بلغة واضحة وهوية حديثة تبعث الثقة والسكينة.',
       heroCta1: 'تبرع الآن', heroCta2: 'شاهد الإنجازات', heroBubble1: '25 مسجدًا في مسيرة العطاء', heroBubble2: 'شفافية مباشرة وأرقام حية',
       stat1: 'مسجدًا ساهمنا فيه', stat2: 'إجمالي الميزانية', stat3: 'مشاريع مكتملة', stat4: 'لغتان',
-      homeBlockTitle: 'منصة تجمع الجمال والثقة والوضوح', homeBlockText: 'تم تصميم الموقع ليقدم رحلة متكاملة: قصة الحملة، إنجازات سابقة، حملة حالية متصلة بالتحديثات، عضوية داعمة، ووسائل تواصل وتبرع سهلة على كل جهاز.',
+      homeBlockTitle: 'منصة تجمع الأمانة والثقة والوضوح', homeBlockText: 'تم تصميم الموقع ليقدم رحلة متكاملة: قصة الحملة، إنجازات سابقة، حملة حالية متصلة بالتحديثات، عضوية داعمة، ووسائل تواصل وتبرع سهلة على كل جهاز.',
       whyTitle: 'لماذا Vi Mår Bra مختلفة؟', whyLead: 'ليست مجرد صفحة تبرع، بل واجهة مؤثرة توضح أين يذهب الدعم وكيف يتحول إلى صدقة جارية تخدم بيوت الله والمجتمع.',
       feat1t: 'شفافية مباشرة', feat1d: 'عرض واضح للأرقام والمستهدف ونسبة التقدم بما يعزز الثقة لدى الزائر والمتبرع.',
       feat2t: 'خريطة الإنجاز', feat2d: 'كل مسجد يظهر على خريطة السويد مع نافذة معلومات مختصرة وسهلة.',
@@ -48,7 +48,7 @@
       heroLead: 'En ideell plattform som kopplar givaren till verklig påverkan och visar resultat, behov och pågående insamlingar med ett varmt och modernt uttryck.',
       heroCta1: 'Donera nu', heroCta2: 'Se resultaten', heroBubble1: '25 moskéer i resan', heroBubble2: 'Live siffror och tydlig transparens',
       stat1: 'Moskéer vi har stöttat', stat2: 'Total budget', stat3: 'Slutförda projekt', stat4: 'Två språk',
-      homeBlockTitle: 'En plattform som förenar skönhet, förtroende och tydlighet', homeBlockText: 'Sajten berättar kampanjens historia, visar tidigare insatser, presenterar en aktuell kampanj med live-data, erbjuder medlemskap och gör kontakt och donation enkel på alla enheter.',
+      homeBlockTitle: 'En plattform som förenar ärlighet, förtroende och tydlighet', homeBlockText: 'Sajten berättar kampanjens historia, visar tidigare insatser, presenterar en aktuell kampanj med live-data, erbjuder medlemskap och gör kontakt och donation enkel på alla enheter.',
       whyTitle: 'Varför är Vi Mår Bra annorlunda?', whyLead: 'Det här är inte bara en donationssida. Det är en upplevelse som tydliggör vart stödet går och hur det blir till en bestående välgörenhet för Allahs hus och samhället.',
       feat1t: 'Direkt transparens', feat1d: 'Tydlig visning av belopp, mål och procent som stärker besökarens förtroende.',
       feat2t: 'Karta över insatserna', feat2d: 'Varje moské visas på Sverigekartan med en snabb informationsruta.',
@@ -234,55 +234,51 @@
     if (!listTarget) return;
     renderCampaignsList(listTarget);
     if (!mapTarget) return;
+    if (typeof L === 'undefined') {
+      mapTarget.innerHTML = '<div class="d-flex align-items-center justify-content-center h-100 small-muted p-4">Map unavailable</div>';
+      return;
+    }
 
-    mapTarget.innerHTML = `
-      <div class="local-map-frame">
-        <div class="local-map-header">
-          <div>
-            <strong>${t('feat2t')}</strong>
-            <div class="small-muted">${t('feat2d')}</div>
-          </div>
-        </div>
-        <div class="local-map-canvas" id="localMapCanvas">
-          <div class="local-map-sweden"></div>
-          <div class="local-map-label">SWEDEN</div>
-          <div class="local-map-popup" id="localMapPopup" hidden></div>
-        </div>
-      </div>
-    `;
+    if (!window.vmbMap) {
+      window.vmbMap = L.map('campaignsMap', { scrollWheelZoom: false, zoomControl: true }).setView([62.2, 16.5], 5);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(window.vmbMap);
+      setTimeout(() => window.vmbMap.invalidateSize(), 250);
+    } else {
+      setTimeout(() => window.vmbMap.invalidateSize(), 250);
+    }
 
-    const canvas = document.getElementById('localMapCanvas');
-    const popup = document.getElementById('localMapPopup');
-    const mosques = data.mosques || [];
+    if (window.vmbMarkers) window.vmbMarkers.forEach(marker => window.vmbMap.removeLayer(marker));
 
-    mosques.forEach((m) => {
-      const p = projectToLocalMap(m.lat, m.lng);
-      const point = document.createElement('button');
-      point.type = 'button';
-      point.className = `local-map-point ${Number(m.progress) >= 100 ? 'is-complete' : 'is-active'}`;
-      point.style.left = `${p.x}%`;
-      point.style.top = `${p.y}%`;
-      point.setAttribute('aria-label', m.name);
-      point.addEventListener('click', () => {
-        popup.innerHTML = `
-          <div class="local-popup-title">${m.name}</div>
-          <div class="local-popup-city">${m.city} • ${m.year}</div>
-          <div class="local-popup-line"><strong>${t('popupCollected')}:</strong> ${formatNumber(m.collected, 'currency')}</div>
-          <div class="local-popup-line"><strong>${t('popupFull')}:</strong> ${formatNumber(m.fullAmount, 'currency')}</div>
-          <div class="local-popup-line"><strong>${t('popupProgress')}:</strong> ${m.progress}%</div>
-          <div class="local-popup-line"><strong>${t('fundingStatus')}:</strong> ${fundingText(m)}</div>
-          <div class="local-popup-line"><strong>${t('popupStatus')}:</strong> ${statusText(m.status)}</div>
-        `;
-        popup.hidden = false;
-        popup.style.left = `min(calc(${p.x}% + 18px), calc(100% - 270px))`;
-        popup.style.top = `max(calc(${p.y}% - 18px), 16px)`;
-      });
-      canvas.appendChild(point);
+    window.vmbMarkers = (data.mosques || []).map((m) => {
+      const marker = L.circleMarker([m.lat, m.lng], {
+        radius: 9,
+        fillColor: Number(m.progress) >= 100 ? '#0f6d62' : '#c89f4a',
+        color: '#ffffff',
+        weight: 2,
+        fillOpacity: 0.95
+      }).addTo(window.vmbMap);
+
+      marker.bindPopup(`
+        <div style="min-width:240px">
+          <div style="font-weight:800;margin-bottom:5px">${m.name}</div>
+          <div style="font-size:13px;color:#607774">${m.city}</div>
+          <hr style="margin:10px 0">
+          <div><strong>${t('popupYear')}:</strong> ${m.year}</div>
+          <div><strong>${t('popupCollected')}:</strong> ${formatNumber(m.collected, 'currency')}</div>
+          <div><strong>${t('popupFull')}:</strong> ${formatNumber(m.fullAmount, 'currency')}</div>
+          <div><strong>${t('popupProgress')}:</strong> ${m.progress}%</div>
+          <div><strong>${t('fundingStatus')}:</strong> ${fundingText(m)}</div>
+          <div><strong>${t('popupStatus')}:</strong> ${statusText(m.status)}</div>
+        </div>`);
+
+      return marker;
     });
 
-    if (mosques.length) {
-      const firstPoint = canvas.querySelector('.local-map-point');
-      if (firstPoint) firstPoint.click();
+    if (window.vmbMarkers.length) {
+      window.vmbMap.fitBounds(L.featureGroup(window.vmbMarkers).getBounds().pad(0.2));
     }
   }
 
