@@ -6,7 +6,7 @@
       siteTagline: 'حملة إعمار وتطوير المساجد في السويد',
       navHome: 'الرئيسية', navCampaigns: 'الحملات السابقة', navCurrent: 'الحملة الحالية', navMembership: 'العضوية', navAbout: 'من نحن', navContact: 'تواصل معنا',
       heroEyebrow: 'معاً نصنع صدقة جارية',
-      heroTitle: 'حملة عصرية لإعمار وتطوير المساجد في السويد',
+      heroTitle: 'حملة خيرية لإعمار وتطوير المساجد في السويد',
       heroLead: 'منصة خيرية غير ربحية تربط المتبرع بالأثر الحقيقي، وتعرض الإنجازات والاحتياجات الجارية بلغة واضحة وهوية حديثة تبعث الثقة والسكينة.',
       heroCta1: 'تبرع الآن', heroCta2: 'شاهد الإنجازات', heroBubble1: '25 مسجدًا في مسيرة العطاء', heroBubble2: 'شفافية مباشرة وأرقام حية',
       stat1: 'مسجدًا ساهمنا فيه', stat2: 'إجمالي الميزانية', stat3: 'مشاريع مكتملة', stat4: 'لغتان',
@@ -44,7 +44,7 @@
       siteTagline: 'Kampanj för att bygga och utveckla moskéer i Sverige',
       navHome: 'Hem', navCampaigns: 'Tidigare kampanjer', navCurrent: 'Aktuell kampanj', navMembership: 'Medlemskap', navAbout: 'Om oss', navContact: 'Kontakt',
       heroEyebrow: 'Tillsammans skapar vi en sadaqa jariya',
-      heroTitle: 'En modern kampanj för att bygga och utveckla moskéer i Sverige',
+      heroTitle: 'En välgörenhetskampanj för att bygga och utveckla moskéer i Sverige',
       heroLead: 'En ideell plattform som kopplar givaren till verklig påverkan och visar resultat, behov och pågående insamlingar med ett varmt och modernt uttryck.',
       heroCta1: 'Donera nu', heroCta2: 'Se resultaten', heroBubble1: '25 moskéer i resan', heroBubble2: 'Live siffror och tydlig transparens',
       stat1: 'Moskéer vi har stöttat', stat2: 'Total budget', stat3: 'Slutförda projekt', stat4: 'Två språk',
@@ -217,124 +217,73 @@
       </div>`).join('');
   }
 
+  
+  function projectToLocalMap(lat, lng) {
+    const minLat = 55.0, maxLat = 69.5, minLng = 10.5, maxLng = 24.5;
+    const x = ((Number(lng) - minLng) / (maxLng - minLng)) * 100;
+    const y = (1 - ((Number(lat) - minLat) / (maxLat - minLat))) * 100;
+    return {
+      x: Math.min(89, Math.max(10, x)),
+      y: Math.min(92, Math.max(8, y))
+    };
+  }
+
   function initCampaignsMap() {
     const mapTarget = document.getElementById('campaignsMap');
     const listTarget = document.getElementById('campaignsList');
     if (!listTarget) return;
     renderCampaignsList(listTarget);
-
     if (!mapTarget) return;
-    if (typeof L === 'undefined') {
-      mapTarget.innerHTML = '<div class="d-flex align-items-center justify-content-center h-100 small-muted p-4">Map unavailable</div>';
-      return;
-    }
 
-    if (!window.vmbMap) {
-      window.vmbMap = L.map('campaignsMap', { scrollWheelZoom: false, zoomControl: true, preferCanvas: true }).setView([62.2, 16.5], 5);
-      const tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-        subdomains: 'abcd',
-        maxZoom: 19
+    mapTarget.innerHTML = `
+      <div class="local-map-frame">
+        <div class="local-map-header">
+          <div>
+            <strong>${t('feat2t')}</strong>
+            <div class="small-muted">${t('feat2d')}</div>
+          </div>
+        </div>
+        <div class="local-map-canvas" id="localMapCanvas">
+          <div class="local-map-sweden"></div>
+          <div class="local-map-label">SWEDEN</div>
+          <div class="local-map-popup" id="localMapPopup" hidden></div>
+        </div>
+      </div>
+    `;
+
+    const canvas = document.getElementById('localMapCanvas');
+    const popup = document.getElementById('localMapPopup');
+    const mosques = data.mosques || [];
+
+    mosques.forEach((m) => {
+      const p = projectToLocalMap(m.lat, m.lng);
+      const point = document.createElement('button');
+      point.type = 'button';
+      point.className = `local-map-point ${Number(m.progress) >= 100 ? 'is-complete' : 'is-active'}`;
+      point.style.left = `${p.x}%`;
+      point.style.top = `${p.y}%`;
+      point.setAttribute('aria-label', m.name);
+      point.addEventListener('click', () => {
+        popup.innerHTML = `
+          <div class="local-popup-title">${m.name}</div>
+          <div class="local-popup-city">${m.city} • ${m.year}</div>
+          <div class="local-popup-line"><strong>${t('popupCollected')}:</strong> ${formatNumber(m.collected, 'currency')}</div>
+          <div class="local-popup-line"><strong>${t('popupFull')}:</strong> ${formatNumber(m.fullAmount, 'currency')}</div>
+          <div class="local-popup-line"><strong>${t('popupProgress')}:</strong> ${m.progress}%</div>
+          <div class="local-popup-line"><strong>${t('fundingStatus')}:</strong> ${fundingText(m)}</div>
+          <div class="local-popup-line"><strong>${t('popupStatus')}:</strong> ${statusText(m.status)}</div>
+        `;
+        popup.hidden = false;
+        popup.style.left = `min(calc(${p.x}% + 18px), calc(100% - 270px))`;
+        popup.style.top = `max(calc(${p.y}% - 18px), 16px)`;
       });
-      tileLayer.on('tileerror', function () {
-        mapTarget.innerHTML = '<div class="d-flex align-items-center justify-content-center h-100 small-muted p-4">تعذر تحميل الخريطة حالياً</div>';
-      });
-      tileLayer.addTo(window.vmbMap);
-      setTimeout(() => window.vmbMap.invalidateSize(), 200);
-    } else {
-      setTimeout(() => window.vmbMap.invalidateSize(), 200);
-    }
-    if (window.vmbMarkers) window.vmbMarkers.forEach(marker => window.vmbMap.removeLayer(marker));
-
-    window.vmbMarkers = data.mosques.map((m) => {
-      const marker = L.circleMarker([m.lat, m.lng], {
-        radius: 9,
-        fillColor: m.progress >= 100 ? '#0f6d62' : '#c89f4a',
-        color: '#ffffff',
-        weight: 2,
-        fillOpacity: 0.95
-      }).addTo(window.vmbMap);
-      marker.bindPopup(`
-        <div style="min-width:240px">
-          <div style="font-weight:800;margin-bottom:5px">${m.name}</div>
-          <div style="font-size:13px;color:#607774">${m.city}</div>
-          <hr style="margin:10px 0">
-          <div><strong>${t('popupYear')}:</strong> ${m.year}</div>
-          <div><strong>${t('popupCollected')}:</strong> ${formatNumber(m.collected, 'currency')}</div>
-          <div><strong>${t('popupFull')}:</strong> ${formatNumber(m.fullAmount, 'currency')}</div>
-          <div><strong>${t('popupProgress')}:</strong> ${m.progress}%</div>
-          <div><strong>${t('fundingStatus')}:</strong> ${fundingText(m)}</div>
-          <div><strong>${t('popupStatus')}:</strong> ${statusText(m.status)}</div>
-        </div>`);
-      return marker;
-    });
-  }
-
-  function normalizeKey(key) {
-    return (key || '').toString().trim().toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
-  }
-
-  function readFlexibleCampaign(rows) {
-    if (!rows || !rows.length) return null;
-    const current = { ...data.currentCampaign };
-
-    const keyMap = {
-      title: ['title','campaign','kampanj','namn','titel','الحملة','اسم'],
-      location: ['location','plats','stad','city','الموقع','المدينة'],
-      goal: ['goal','target','mål','total','amount','المبلغالكامل','المبلغالمطلوب','الهدف','المطلوب'],
-      raised: ['raised','insamlat','collected','paid','المبلغالمحصل','المبلغالمجموع','المجموع'],
-      remaining: ['remaining','kvar','left','rest','المبلغالمتبقي','المتبقي'],
-      progress: ['progress','framsteg','percent','procent','النسبة'],
-      updatedAt: ['updatedat','updated','date','senastuppdaterad','آخرupdate','آخرالتحديث'],
-      notes: ['notes','note','description','beskrivning','ملاحظات','وصف']
-    };
-
-    const aliasToField = {};
-    Object.entries(keyMap).forEach(([field, aliases]) => {
-      aliases.forEach(alias => { aliasToField[alias] = field; });
+      canvas.appendChild(point);
     });
 
-    const firstRow = rows[0] || [];
-    const headerKeys = firstRow.map(normalizeKey);
-    const headerHasKnownAliases = headerKeys.some(k => aliasToField[k]);
-
-    if (rows.length > 1 && headerHasKnownAliases) {
-      const values = rows[1] || [];
-      headerKeys.forEach((key, idx) => {
-        const field = aliasToField[key];
-        if (!field) return;
-        const value = values[idx];
-        if (['goal', 'raised', 'remaining', 'progress'].includes(field)) current[field] = toNumber(value, current[field]);
-        else current[field] = value || current[field];
-      });
-    } else {
-      rows.forEach((row) => {
-        const c0 = row[0];
-        const c1 = row[1];
-        const k0 = normalizeKey(c0);
-        const k1 = normalizeKey(c1);
-        if (aliasToField[k0]) {
-          const field = aliasToField[k0];
-          if (['goal', 'raised', 'remaining', 'progress'].includes(field)) current[field] = toNumber(c1, current[field]);
-          else current[field] = c1 || current[field];
-        } else if (aliasToField[k1]) {
-          const field = aliasToField[k1];
-          if (['goal', 'raised', 'remaining', 'progress'].includes(field)) current[field] = toNumber(c0, current[field]);
-          else current[field] = c0 || current[field];
-        }
-      });
+    if (mosques.length) {
+      const firstPoint = canvas.querySelector('.local-map-point');
+      if (firstPoint) firstPoint.click();
     }
-
-    if (!current.remaining && current.goal && current.raised) current.remaining = Math.max(current.goal - current.raised, 0);
-    if ((!current.progress || current.progress < 0) && current.goal && current.raised) current.progress = (current.raised / current.goal) * 100;
-    return current;
-  }
-
-  function toNumber(value, fallback) {
-    if (value === undefined || value === null || value === '') return Number(fallback || 0);
-    const cleaned = value.toString().replace(/[^\d.,-]/g, '').replace(/,(?=\d{3}\b)/g, '').replace(',', '.');
-    const num = Number(cleaned);
-    return Number.isFinite(num) ? num : Number(fallback || 0);
   }
 
   function parseCsv(text) {
@@ -440,7 +389,26 @@
     const imageLink = document.getElementById('currentCampaignImageLink');
     if (imageEl && c.imageUrl) imageEl.src = c.imageUrl;
     if (imageLink) imageLink.href = '../current/index.html';
-    // current campaign map removed by request
+
+    const mapTarget = document.getElementById('currentCampaignMap');
+    if (mapTarget && typeof L !== 'undefined') {
+      const match = data.mosques.find(m => (c.location || '').toLowerCase().includes(m.city.toLowerCase()) || (c.title || '').toLowerCase().includes(m.city.toLowerCase()));
+      const lat = match ? match.lat : 62.0;
+      const lng = match ? match.lng : 15.0;
+      if (!window.currentMap) {
+        window.currentMap = L.map('currentCampaignMap', { scrollWheelZoom: false, zoomControl: true, preferCanvas: true }).setView([lat, lng], 7);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+          subdomains: 'abcd',
+          maxZoom: 19
+        }).addTo(window.currentMap);
+        setTimeout(() => window.currentMap.invalidateSize(), 200);
+      } else {
+        window.currentMap.setView([lat, lng], match ? 7 : 5);
+      }
+      if (window.currentMarker) window.currentMap.removeLayer(window.currentMarker);
+      window.currentMarker = L.marker([lat, lng]).addTo(window.currentMap).bindPopup(`<strong>${c.title}</strong><br>${c.location}`).openPopup();
+    }
   }
 
   function hydrateLinks() {
