@@ -288,10 +288,10 @@ window.VMB_DATA = {
     "notes": "هنا يتم تحديث كل مبلغ وكل تبرع لحظة بلحظة ليظهر مستوى التقدم ومسار الحملة بصورة واضحة وشفافة."
   },
   "currentCampaignSheet": {
-    "appsScriptUrl": "",
-    "csvUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRIc-ljOLdzN9Mps4xTrl-cKU530leLeCIMbkVhSAuUBeH2pM3vQfI8c2TQixfBxDHOs3GeVkiz7aZs/pub?output=csv",
+    "appsScriptUrl": "https://script.google.com/macros/s/AKfycbz25VCX8kGEHKubuwFskSi9kuluXnfb1k5v0JSxoOl7gvZqNQIXAzY9P_pencPuxwXi/exec",
+    "csvUrl": "",
     "jsonUrl": "",
-    "sourceLabel": "Google Sheets CSV",
+    "sourceLabel": "Google Apps Script",
     "sheetName": "CurrentCampaign"
   },
   "currentCampaignLinks": {

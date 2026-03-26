@@ -177,6 +177,84 @@
     return t(status);
   }
 
+  function toNumber(value, fallback = 0) {
+    if (value === null || value === undefined || value === '') return fallback;
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+
+    const cleaned = String(value)
+      .replace(/\s+/g, '')
+      .replace(/[^\d,.-]/g, '')
+      .replace(/,(?=\d{3}(\D|$))/g, '')
+      .replace(',', '.');
+
+    const num = Number(cleaned);
+    return Number.isFinite(num) ? num : fallback;
+  }
+
+  function readFlexibleCampaign(rows) {
+    if (!Array.isArray(rows) || !rows.length) return null;
+
+    const current = { ...data.currentCampaign };
+    const kv = {};
+
+    rows.forEach((row) => {
+      const key = (row[0] || '').toString().trim();
+      const value = (row[1] || '').toString().trim();
+      if (key) kv[key] = value;
+    });
+
+    if (Object.keys(kv).length) {
+      const goal = toNumber(kv.goal ?? kv.target, current.goal);
+      const raised = toNumber(kv.raised ?? kv.collected, current.raised);
+      const remaining = kv.remaining !== undefined && kv.remaining !== ''
+        ? toNumber(kv.remaining, current.remaining)
+        : Math.max(goal - raised, 0);
+      const progress = kv.progress !== undefined && kv.progress !== ''
+        ? toNumber(kv.progress, current.progress)
+        : (goal > 0 ? (raised / goal) * 100 : 0);
+
+      return {
+        ...current,
+        title: kv.title || kv.name || current.title,
+        location: kv.location || kv.city || current.location,
+        goal,
+        raised,
+        remaining,
+        progress,
+        updatedAt: kv.updatedAt || 'Google Sheet',
+        notes: kv.notes || current.notes,
+        imageUrl: kv.imageUrl || current.imageUrl
+      };
+    }
+
+    const headers = rows[0].map((h) => (h || '').toString().trim().toLowerCase());
+    const dataRow = rows[1] || [];
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = dataRow[i]; });
+
+    const goal = toNumber(obj.goal ?? obj.target, current.goal);
+    const raised = toNumber(obj.raised ?? obj.collected, current.raised);
+    const remaining = obj.remaining !== undefined && obj.remaining !== ''
+      ? toNumber(obj.remaining, current.remaining)
+      : Math.max(goal - raised, 0);
+    const progress = obj.progress !== undefined && obj.progress !== ''
+      ? toNumber(obj.progress, current.progress)
+      : (goal > 0 ? (raised / goal) * 100 : 0);
+
+    return {
+      ...current,
+      title: obj.title || obj.name || current.title,
+      location: obj.location || obj.city || current.location,
+      goal,
+      raised,
+      remaining,
+      progress,
+      updatedAt: obj.updatedat || 'Google Sheet',
+      notes: obj.notes || current.notes,
+      imageUrl: obj.imageurl || current.imageUrl
+    };
+  }
+
   function renderPreview() {
     const target = document.getElementById('mosqueSummaryList');
     if (!target) return;
@@ -307,102 +385,6 @@
     return rows;
   }
 
-  function readFlexibleCampaign(rows) {
-    if (!Array.isArray(rows) || !rows.length) return null;
-
-    const normalizedRows = rows
-      .map((row) => Array.isArray(row) ? row.map((cell) => String(cell ?? '').trim()) : [])
-      .filter((row) => row.some((cell) => cell !== ''));
-
-    if (!normalizedRows.length) return null;
-
-    const current = { ...data.currentCampaign };
-
-    const aliases = {
-      title: ['title', 'name', 'campaign', 'campaign_name', 'rubrik'],
-      location: ['location', 'city', 'place', 'stad', 'plats'],
-      goal: ['goal', 'target', 'amount', 'fullamount', 'full_amount', 'malsumman', 'mal', 'mål'],
-      raised: ['raised', 'collected', 'insamlat', 'donated', 'sum'],
-      remaining: ['remaining', 'left', 'rest', 'kvar'],
-      progress: ['progress', 'percent', 'percentage', 'procent'],
-      updatedAt: ['updatedat', 'updated_at', 'lastupdated', 'last_updated', 'senastuppdaterad'],
-      notes: ['notes', 'note', 'description', 'beskrivning'],
-      imageUrl: ['imageurl', 'image', 'image_url', 'img', 'photo']
-    };
-
-    const normalizeKey = (value) => String(value || '')
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g, '')
-      .replace(/[^\p{L}\p{N}_-]/gu, '');
-
-    const normalizedAlias = (key) => normalizeKey(key);
-    const aliasIndex = {};
-    Object.keys(aliases).forEach((group) => {
-      aliases[group].forEach((key) => {
-        aliasIndex[normalizedAlias(key)] = group;
-      });
-    });
-
-    const pickValue = (obj, keys) => {
-      for (const key of keys) {
-        const found = obj[normalizedAlias(key)];
-        if (found !== undefined && found !== null && String(found).trim() !== '') return found;
-      }
-      return undefined;
-    };
-
-    const kv = {};
-    normalizedRows.forEach((row) => {
-      const key = normalizeKey(row[0]);
-      const value = row[1] ?? '';
-      if (key) kv[key] = value;
-    });
-
-    let raw = null;
-
-    const headerRow = normalizedRows[0].map((cell) => normalizeKey(cell));
-    const headerLooksStructured = headerRow.length > 1 && headerRow.some((cell) => aliasIndex[cell]);
-
-    if (headerLooksStructured && normalizedRows[1]) {
-      raw = {};
-      headerRow.forEach((header, index) => {
-        if (header) raw[header] = normalizedRows[1][index] ?? '';
-      });
-    } else if (Object.keys(kv).length) {
-      raw = kv;
-    }
-
-    if (!raw) return null;
-
-    const goalSource = pickValue(raw, aliases.goal);
-    const raisedSource = pickValue(raw, aliases.raised);
-    const remainingSource = pickValue(raw, aliases.remaining);
-    const progressSource = pickValue(raw, aliases.progress);
-
-    const goal = goalSource !== undefined ? toNumber(goalSource, current.goal) : current.goal;
-    const raised = raisedSource !== undefined ? toNumber(raisedSource, current.raised) : current.raised;
-    const remaining = remainingSource !== undefined
-      ? toNumber(remainingSource, Math.max(goal - raised, 0))
-      : Math.max(goal - raised, 0);
-    const progress = progressSource !== undefined
-      ? toNumber(progressSource, goal > 0 ? (raised / goal) * 100 : current.progress)
-      : (goal > 0 ? (raised / goal) * 100 : current.progress);
-
-    return {
-      ...current,
-      title: pickValue(raw, aliases.title) || current.title,
-      location: pickValue(raw, aliases.location) || current.location,
-      goal,
-      raised,
-      remaining,
-      progress,
-      updatedAt: pickValue(raw, aliases.updatedAt) || (data.currentCampaignSheet && data.currentCampaignSheet.sourceLabel) || current.updatedAt,
-      notes: pickValue(raw, aliases.notes) || current.notes,
-      imageUrl: pickValue(raw, aliases.imageUrl) || current.imageUrl
-    };
-  }
-
   async function loadCurrentCampaign() {
     const current = { ...data.currentCampaign };
     const cfg = data.currentCampaignSheet || {};
@@ -424,11 +406,11 @@
       const goal = toNumber((src.goal ?? src.target), current.goal);
       const raised = toNumber((src.raised ?? src.collected), current.raised);
       const remaining = src.remaining !== undefined && src.remaining !== null && src.remaining !== ''
-        ? toNumber(src.remaining, Math.max(goal - raised, 0))
+        ? toNumber(src.remaining, current.remaining)
         : Math.max(goal - raised, 0);
       const progress = src.progress !== undefined && src.progress !== null && src.progress !== ''
-        ? toNumber(src.progress, goal > 0 ? (raised / goal) * 100 : current.progress)
-        : (goal > 0 ? (raised / goal) * 100 : current.progress);
+        ? toNumber(src.progress, current.progress)
+        : (goal > 0 ? (raised / goal) * 100 : 0);
 
       return {
         ...current,
@@ -450,7 +432,15 @@
         { cache: 'no-store' }
       );
       if (!res.ok) throw new Error('Apps Script fetch failed');
-      const payload = await res.json();
+      const text = await res.text();
+      let payload = null;
+      try {
+        payload = JSON.parse(text);
+      } catch (e) {
+        const match = text.match(/^[^(]+\((.*)\)\s*;?$/s);
+        if (match) payload = JSON.parse(match[1]);
+      }
+      if (!payload) throw new Error('Apps Script response parse failed');
       return normalizeCampaignPayload(payload);
     }
 
