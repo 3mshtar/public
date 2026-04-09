@@ -123,7 +123,7 @@
 
   function formatNumber(value, type='number') {
     const activeLang = lang();
-    const locale = 'en-US';
+    const locale = activeLang === 'ar' ? 'en-US' : 'sv-SE';
     const formatted = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(Number(value || 0));
     if (type === 'currency') return `${formatted} ${t('currency')}`;
     return formatted;

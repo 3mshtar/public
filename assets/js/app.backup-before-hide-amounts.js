@@ -8,7 +8,7 @@
       heroEyebrow: 'معاً نصنع صدقة جارية',
       heroTitle: 'حملة خيرية لإعمار وتطوير المساجد في السويد',
       heroLead: 'منصة خيرية غير ربحية تربط المتبرع بالأثر الحقيقي، وتعرض الإنجازات والاحتياجات الجارية بلغة واضحة وهوية حديثة تبعث الثقة والسكينة.',
-      heroCta1: 'اشتراك الآن', heroCta2: 'شاهد الإنجازات', heroBubble1: '25 مسجدًا في مسيرة العطاء', heroBubble2: 'شفافية مباشرة وأرقام حية',
+      heroCta1: 'تبرع الآن', heroCta2: 'شاهد الإنجازات', heroBubble1: '25 مسجدًا في مسيرة العطاء', heroBubble2: 'شفافية مباشرة وأرقام حية',
       stat1: 'مسجدًا ساهمنا فيه', stat2: 'إجمالي الميزانية', stat3: 'مشاريع مكتملة', stat4: 'لغتان',
       homeBlockTitle: 'منصة تجمع الأمانة والثقة والوضوح', homeBlockText: 'تم تصميم الموقع ليقدم رحلة متكاملة: قصة الحملة، إنجازات سابقة، حملة حالية متصلة بالتحديثات، عضوية داعمة، ووسائل تواصل وتبرع سهلة على كل جهاز.',
       whyTitle: 'لماذا Vi Mår Bra مختلفة؟', whyLead: 'ليست مجرد صفحة تبرع، بل واجهة مؤثرة توضح أين يذهب الدعم وكيف يتحول إلى صدقة جارية تخدم بيوت الله والمجتمع.',
@@ -36,7 +36,7 @@
       whatsapp: 'واتساب', email: 'البريد الإلكتروني', sendMsg: 'أرسل رسالتك', name: 'الاسم الكامل', mosqueName: 'اسم المسجد', phone: 'رقم الهاتف', message: 'رسالتك', submit: 'إرسال الطلب',
       footerText: 'Vi Mår Bra — حملة غير ربحية لإعمار وتطوير المساجد في السويد.',
       popupYear: 'التاريخ', popupCollected: 'تم جمع', popupFull: 'المبلغ الكامل', popupProgress: 'النسبة', popupStatus: 'حالة المشروع', fundingStatus: 'حالة جمع المبلغ',
-      started: 'المشروع في بدايته', active: 'المشروع قيد التنفيذ', completed: 'المشروع مكتمل', fundingComplete: 'اكتمل جمع المبلغ', fundingOpen: 'جمع التبرعات مستمر', currency: 'KR',
+      started: 'المشروع في بدايته', active: 'المشروع قيد التنفيذ', completed: 'المشروع مكتمل', fundingComplete: 'اكتمل جمع المبلغ', fundingOpen: 'جمع التبرعات مستمر', currency: 'كرونة',
       locationLabel: 'الموقع', amountLive: 'تحديثات مستمرة', contactSuccess: 'شكراً لك. تم تجهيز النموذج لإرسال رسالتك مباشرة إلى بريد المنظمة.'
     },
     sv: {
@@ -46,7 +46,7 @@
       heroEyebrow: 'Tillsammans skapar vi en sadaqa jariya',
       heroTitle: 'En välgörenhetskampanj för att bygga och utveckla moskéer i Sverige',
       heroLead: 'En ideell plattform som kopplar givaren till verklig påverkan och visar resultat, behov och pågående insamlingar med ett varmt och modernt uttryck.',
-      heroCta1: 'Bli medlem nu', heroCta2: 'Se resultaten', heroBubble1: '25 moskéer i resan', heroBubble2: 'Live siffror och tydlig transparens',
+      heroCta1: 'Donera nu', heroCta2: 'Se resultaten', heroBubble1: '25 moskéer i resan', heroBubble2: 'Live siffror och tydlig transparens',
       stat1: 'Moskéer vi har stöttat', stat2: 'Total budget', stat3: 'Slutförda projekt', stat4: 'Två språk',
       homeBlockTitle: 'En plattform som förenar ärlighet, förtroende och tydlighet', homeBlockText: 'Sajten berättar kampanjens historia, visar tidigare insatser, presenterar en aktuell kampanj med live-data, erbjuder medlemskap och gör kontakt och donation enkel på alla enheter.',
       whyTitle: 'Varför är Vi Mår Bra annorlunda?', whyLead: 'Det här är inte bara en donationssida. Det är en upplevelse som tydliggör vart stödet går och hur det blir till en bestående välgörenhet för Allahs hus och samhället.',
@@ -75,7 +75,7 @@
       footerText: 'Vi Mår Bra — ideell kampanj för att bygga och utveckla moskéer i Sverige.',
       popupYear: 'Datum', popupCollected: 'Insamlat', popupFull: 'Fullt belopp', popupProgress: 'Procent', popupStatus: 'Projektstatus', fundingStatus: 'Insamlingsstatus',
       fundingComplete: 'Insamlingen är klar', fundingOpen: 'Insamlingen pågår',
-      started: 'Projektstart', active: 'Pågående', completed: 'Slutförd', currency: 'KR',
+      started: 'Projektstart', active: 'Pågående', completed: 'Slutförd', currency: 'kr',
       locationLabel: 'Plats', amountLive: 'Löpande uppdateringar', contactSuccess: 'Tack. Formuläret är förberett för att skicka ditt meddelande direkt till organisationens e-post.'
     }
   };
@@ -123,8 +123,7 @@
 
   function formatNumber(value, type='number') {
     const activeLang = lang();
-    const locale = 'en-US';
-    const formatted = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(Number(value || 0));
+    const formatted = new Intl.NumberFormat(activeLang === 'ar' ? 'ar-EG' : 'sv-SE', { maximumFractionDigits: 0 }).format(Number(value || 0));
     if (type === 'currency') return `${formatted} ${t('currency')}`;
     return formatted;
   }
@@ -198,10 +197,13 @@
 
   function hydrateCounters() {
     animateValue(document.getElementById('kpiMosques'), data.mosques.length);
+    animateValue(document.getElementById('kpiBudget'), totals.collected, 'currency');
     animateValue(document.getElementById('kpiCompleted'), totals.completed);
     animateValue(document.getElementById('kpiLangs'), 2);
+    animateValue(document.getElementById('statsTotalCollected'), totals.collected, 'currency');
     animateValue(document.getElementById('statsTotalMosques'), data.mosques.length);
     animateValue(document.getElementById('statsCompletedProjects'), totals.completed);
+    animateValue(document.getElementById('statsTotalFull'), totals.full, 'currency');
   }
 
   function fundingText(m) {
