@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1800" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Sweden map outline</title>
+  <desc id="desc">A local SVG outline map of Sweden for the Vi Mår Bra website.</desc>
+  <defs>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f6fbf8"/>
+      <stop offset="100%" stop-color="#eef6f2"/>
+    </linearGradient>
+    <linearGradient id="land" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f7fbf9"/>
+      <stop offset="100%" stop-color="#edf5f1"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="20" stdDeviation="18" flood-color="#0f6d62" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+  <rect width="1000" height="1800" rx="54" fill="url(#sea)"/>
+  <g filter="url(#shadow)">
+    <g fill="url(#land)" stroke="#b8d5cf" stroke-width="14" stroke-linejoin="round">
+      <path d="M 837.09 650.65 L 767.81 700.51 L 778.96 744.27 L 665.3 801.72 L 527.32 863.17 L 475.29 963.79 L 526.15 1014.14 L 594.48 1053.77 L 528.86 1134.37 L 454.54 1151.09 L 427.29 1271.03 L 386.71 1337.97 L 300.03 1331.07 L 259.59 1387.74 L 176.87 1391.03 L 154.16 1323.48 L 94.34 1242.4 L 40.0 1141.35 L 71.5 1100.18 L 130.96 1051.19 L 154.59 967.19 L 108.93 930.98 L 104.53 836.1 L 150.93 769.09 L 221.81 770.31 L 246.67 741.99 L 220.65 717.58 L 331.59 617.06 L 403.07 537.85 L 450.23 487.02 L 518.85 487.26 L 537.76 447.47 L 672.42 458.92 L 682.91 411.91 L 727.23 408.97 L 822.47 443.94 L 934.0 492.59 L 935.89 602.62 L 960.0 630.42 L 837.09 650.65 Z"/>
+      <path d="M 471.16 1246.41 L 481.76 1250.64 L 426.03 1332.62 L 421.32 1305.66 L 471.16 1246.41 Z"/>
+      <path d="M 635.22 1205.48 L 595.58 1227.44 L 597.15 1242.18 L 609.32 1242.39 L 606.18 1247.47 L 587.73 1252.13 L 588.91 1259.34 L 571.25 1264.88 L 561.04 1279.19 L 545.74 1281.76 L 551.62 1266.16 L 543.38 1254.88 L 549.27 1245.77 L 544.95 1235.01 L 585.38 1207.56 L 612.46 1206.73 L 617.17 1202.98 L 636.4 1202.78 L 635.22 1205.48 Z"/>
+      <path d="M 741.59 786.41 L 757.29 785.98 L 750.62 794.13 L 740.02 803.89 L 730.79 803.02 L 739.63 794.22 L 738.25 789.53 L 741.59 786.41 Z"/>
+    </g>
+  </g>
+  <g stroke="#d3bf8d" stroke-width="10" stroke-linecap="round" opacity="0.9">
+    <path d="M690 520 C730 600, 760 650, 790 710"/>
+    <path d="M560 760 C600 840, 625 900, 650 980"/>
+    <path d="M505 1035 C545 1110, 565 1170, 590 1240"/>
+    <path d="M450 1285 C490 1360, 510 1435, 520 1505"/>
+  </g>
+</svg>

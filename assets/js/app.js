@@ -100,6 +100,19 @@
   };
   totals.active = data.mosques.filter(m => Number(m.progress) < 100).length;
 
+
+  const SWEDEN_MAP = {
+    width: 1000,
+    height: 1800,
+    scale: 71.45070561454985,
+    offsetX: -747.913296122013,
+    offsetY: 5346.66264161025
+  };
+
+  const ASSET_URLS = {
+    swedenOutline: new URL('../img/sweden-outline.svg', document.currentScript && document.currentScript.src ? document.currentScript.src : window.location.href).href
+  };
+
   function lang() {
     return localStorage.getItem('vmb-lang') || document.documentElement.lang || 'ar';
   }
@@ -254,42 +267,58 @@
 
   
   function projectToLocalMap(lat, lng) {
-    const minLat = 55.0, maxLat = 69.5, minLng = 10.5, maxLng = 24.5;
-    const x = ((Number(lng) - minLng) / (maxLng - minLng)) * 100;
-    const y = (1 - ((Number(lat) - minLat) / (maxLat - minLat))) * 100;
+    const x = (Number(lng) * SWEDEN_MAP.scale) + SWEDEN_MAP.offsetX;
+    const y = (-Number(lat) * SWEDEN_MAP.scale) + SWEDEN_MAP.offsetY;
     return {
-      x: Math.min(89, Math.max(10, x)),
-      y: Math.min(92, Math.max(8, y))
+      x: Math.min(96, Math.max(4, (x / SWEDEN_MAP.width) * 100)),
+      y: Math.min(96, Math.max(4, (y / SWEDEN_MAP.height) * 100))
     };
+  }
+
+  function mapInfoMarkup(item) {
+    if (!item) return '';
+    return `
+      <div class="local-map-detail-head">
+        <div>
+          <div class="local-popup-title">${item.name}</div>
+          <div class="local-popup-city">${item.city}${item.year ? ` • ${item.year}` : ''}</div>
+        </div>
+        <span class="badge-soft">${Number(item.progress || 0).toFixed(1)}%</span>
+      </div>
+      <div class="local-map-stats">
+        <div class="local-map-stat">
+          <span>${t('popupCollected')}</span>
+          <strong>${formatNumber(item.collected, 'currency')}</strong>
+        </div>
+        <div class="local-map-stat">
+          <span>${t('popupFull')}</span>
+          <strong>${formatNumber(item.fullAmount, 'currency')}</strong>
+        </div>
+      </div>
+      <div class="small-muted"><strong>${t('fundingStatus')}:</strong> ${fundingText(item)}</div>
+      ${item.status ? `<div class="small-muted"><strong>${t('popupStatus')}:</strong> ${statusText(item.status)}</div>` : ''}
+    `;
   }
 
   function buildLocalMapMarkup(items, opts = {}) {
     const compact = !!opts.compact;
     const headerTitle = opts.title || t('campaignsTitle');
     const headerLead = opts.lead || t('campaignsLead');
-    const points = (items || []).map((item, index) => {
+    const safeItems = Array.isArray(items) ? items : [];
+    const initialIndex = Math.max(0, safeItems.findIndex(item => Number(item.progress || 0) < 100));
+
+    const markers = safeItems.map((item, index) => {
       const pos = projectToLocalMap(item.lat, item.lng);
       const stateClass = Number(item.progress) >= 100 ? 'is-complete' : 'is-active';
-      const popupX = Math.min(72, Math.max(12, pos.x + (pos.x > 62 ? -20 : 6)));
-      const popupY = Math.min(82, Math.max(10, pos.y - 8));
-      const popup = `
-        <div class="local-map-popup" style="left:${popupX}%;top:${popupY}%">
-          <div class="local-popup-title">${item.name}</div>
-          <div class="local-popup-city">${item.city}</div>
-          <div class="small-muted"><strong>${t('popupCollected')}:</strong> ${formatNumber(item.collected, 'currency')}</div>
-          <div class="small-muted"><strong>${t('popupFull')}:</strong> ${formatNumber(item.fullAmount, 'currency')}</div>
-          <div class="small-muted"><strong>${t('popupProgress')}:</strong> ${Number(item.progress || 0).toFixed(1)}%</div>
-        </div>`;
-      const label = compact && index === 0 ? popup : '';
       return `
-        <button class="local-map-point ${stateClass}" type="button" style="left:${pos.x}%;top:${pos.y}%" aria-label="${item.name}" data-popup-target="local-map-popup-${index}"></button>
-        <div class="local-map-popup" id="local-map-popup-${index}" style="left:${popupX}%;top:${popupY}%;display:${compact && index === 0 ? 'block' : 'none'}">
-          <div class="local-popup-title">${item.name}</div>
-          <div class="local-popup-city">${item.city}</div>
-          <div class="small-muted"><strong>${t('popupCollected')}:</strong> ${formatNumber(item.collected, 'currency')}</div>
-          <div class="small-muted"><strong>${t('popupFull')}:</strong> ${formatNumber(item.fullAmount, 'currency')}</div>
-          <div class="small-muted"><strong>${t('popupProgress')}:</strong> ${Number(item.progress || 0).toFixed(1)}%</div>
-        </div>`;
+        <button
+          class="local-map-point ${stateClass}${index === initialIndex ? ' is-selected' : ''}"
+          type="button"
+          style="left:${pos.x}%;top:${pos.y}%"
+          aria-label="${item.name}"
+          aria-pressed="${index === initialIndex ? 'true' : 'false'}"
+          data-map-index="${index}">
+        </button>`;
     }).join('');
 
     return `
@@ -299,25 +328,45 @@
             <strong>${headerTitle}</strong>
             <div class="small-muted">${headerLead}</div>
           </div>
-          <span class="badge-soft">${(items || []).length}</span>
+          <span class="badge-soft">${safeItems.length}</span>
         </div>
-        <div class="local-map-canvas${compact ? ' is-compact' : ''}">
-          <div class="local-map-label">SWEDEN</div>
-          <div class="local-map-sweden" aria-hidden="true"></div>
-          ${points}
+        <div class="local-map-body${compact ? ' is-compact' : ''}">
+          <div class="local-map-graphic${compact ? ' is-compact' : ''}">
+            <div class="local-map-label">SWEDEN</div>
+            <img class="local-map-svg" src="${ASSET_URLS.swedenOutline}" alt="Sweden map">
+            ${markers}
+          </div>
+          <div class="local-map-detail" data-map-detail>${mapInfoMarkup(safeItems[initialIndex] || safeItems[0])}</div>
+          <div class="local-map-legend">
+            <span><i class="local-map-dot is-complete"></i>${t('fundingComplete')}</span>
+            <span><i class="local-map-dot is-active"></i>${t('fundingOpen')}</span>
+          </div>
         </div>
       </div>`;
   }
 
-  function wireLocalMap(target) {
+  function wireLocalMap(target, items = []) {
     if (!target) return;
-    const popups = Array.from(target.querySelectorAll('.local-map-popup'));
-    target.querySelectorAll('[data-popup-target]').forEach((button) => {
-      button.addEventListener('click', () => {
-        const id = button.getAttribute('data-popup-target');
-        popups.forEach((popup) => {
-          popup.style.display = popup.id === id ? 'block' : 'none';
-        });
+    const detail = target.querySelector('[data-map-detail]');
+    const points = Array.from(target.querySelectorAll('[data-map-index]'));
+    function activate(index) {
+      const item = items[index];
+      if (!item || !detail) return;
+      detail.innerHTML = mapInfoMarkup(item);
+      points.forEach((point, pointIndex) => {
+        const active = pointIndex === index;
+        point.classList.toggle('is-selected', active);
+        point.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+    }
+    points.forEach((button) => {
+      const index = Number(button.getAttribute('data-map-index') || 0);
+      button.addEventListener('click', () => activate(index));
+      button.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          activate(index);
+        }
       });
     });
   }
@@ -332,7 +381,7 @@
       title: t('campaignsTitle'),
       lead: t('campaignsLead')
     });
-    wireLocalMap(mapTarget);
+    wireLocalMap(mapTarget, data.mosques || []);
   }
 
   function parseCsv(text) {
@@ -550,7 +599,7 @@
         title: c.title || t('currentTitle'),
         lead: c.location || t('currentLocation')
       });
-      wireLocalMap(mapTarget);
+      wireLocalMap(mapTarget, [item]);
     }
   }
 
