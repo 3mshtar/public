@@ -1,27 +1,7 @@
 Options -Indexes
 DirectoryIndex index.html
-
 RewriteEngine On
 
-# Remove explicit .html from public URLs
-RewriteCond %{THE_REQUEST} \s/+(.*?/)?index\.html[\s?] [NC]
-RewriteRule ^ %1 [R=301,L]
-
-RewriteCond %{THE_REQUEST} \s/+(.*?)\.html[\s?] [NC]
-RewriteRule ^ %1 [R=301,L]
-
-# Internally route clean folder paths to index.html
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^(.+?)/?$ $1/index.html [L]
-
-# Internally route clean page paths to matching .html when present
-RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/assets/
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{DOCUMENT_ROOT}/$1.html -f
-RewriteRule ^(.+?)/?$ $1.html [L]
-
-# Fallback folder index
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{DOCUMENT_ROOT}/$1/index.html -f
-RewriteRule ^(.+?)/?$ $1/index.html [L]
+RewriteRule ^ index.html [L]
