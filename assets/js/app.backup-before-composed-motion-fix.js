@@ -708,8 +708,8 @@
       const rect = el.getBoundingClientRect();
       const px = (event.clientX - rect.left) / rect.width;
       const py = (event.clientY - rect.top) / rect.height;
-      const rx = (0.5 - py) * 3.5;
-      const ry = (px - 0.5) * 4.5;
+      const rx = (0.5 - py) * 8;
+      const ry = (px - 0.5) * 10;
       el.style.setProperty('--tilt-x', `${rx.toFixed(2)}deg`);
       el.style.setProperty('--tilt-y', `${ry.toFixed(2)}deg`);
       el.style.setProperty('--glow-x', `${(px * 100).toFixed(2)}%`);
@@ -725,9 +725,10 @@
 
   function enhanceInteractiveSurfaces() {
     const selectors = [
-      '.card-soft', '.kpi-box', '.journey-card', '.metric-mini', '.mosque-item',
-      '.membership-box', '.donation-method', '.campaigns-project-row', '.mini-stat-card',
-      '.stat-box', '.badge-soft', '.contact-links a'
+      '.hero-card', '.hero-visual', '.panel', '.card-soft', '.kpi-box', '.journey-card',
+      '.metric-mini', '.mosque-item', '.membership-box', '.donation-method', '.gold-callout',
+      '.local-map-frame', '.local-map-detail', '.donate-modal', '.campaigns-project-row',
+      '.vmb-map-stat', '.contact-links a'
     ];
     document.querySelectorAll(selectors.join(',')).forEach(bindInteractiveSurface);
   }
@@ -740,8 +741,8 @@
       if (prefersReducedMotion() || 'ontouchstart' in window) return;
       btn.addEventListener('pointermove', (event) => {
         const rect = btn.getBoundingClientRect();
-        const dx = ((event.clientX - rect.left) / rect.width - 0.5) * 4;
-        const dy = ((event.clientY - rect.top) / rect.height - 0.5) * 3;
+        const dx = ((event.clientX - rect.left) / rect.width - 0.5) * 10;
+        const dy = ((event.clientY - rect.top) / rect.height - 0.5) * 8;
         btn.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
       });
       btn.addEventListener('pointerleave', () => {
@@ -763,7 +764,6 @@
   }
 
   function initCursorGlow() {
-    return;
     const glow = ensureCursorGlow();
     if (!glow) return;
     let rafId = 0;
@@ -798,7 +798,7 @@
   }
 
   function seedAmbientOrbs() {
-    document.querySelectorAll('.hero-shell').forEach((section) => {
+    document.querySelectorAll('.hero-shell, .page-hero').forEach((section) => {
       if (section.querySelector('.ambient-orbs')) return;
       const wrap = document.createElement('div');
       wrap.className = 'ambient-orbs';
@@ -816,7 +816,32 @@
   }
 
   function initSectionDrift() {
+    if (prefersReducedMotion()) return;
     seedAmbientOrbs();
+    const drifting = Array.from(document.querySelectorAll('.panel, .hero-card, .hero-visual, .mosque-item, .card-soft, .membership-box, .journey-card'));
+    if (!drifting.length) return;
+    let rafId = 0;
+    const update = () => {
+      const viewport = window.innerHeight || 1;
+      drifting.forEach((el, index) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.bottom < -40 || rect.top > viewport + 40) return;
+        const center = rect.top + rect.height / 2;
+        const ratio = (center - viewport / 2) / viewport;
+        const shift = Math.max(Math.min(ratio * -14, 14), -14);
+        const rotate = Math.max(Math.min(ratio * 2.4 + (index % 2 ? 0.6 : -0.6), 2.6), -2.6);
+        el.style.setProperty('--drift-y', `${shift.toFixed(2)}px`);
+        el.style.setProperty('--drift-r', `${rotate.toFixed(2)}deg`);
+      });
+      rafId = 0;
+    };
+    const queue = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(update);
+    };
+    window.addEventListener('scroll', queue, { passive: true });
+    window.addEventListener('resize', queue);
+    queue();
   }
 
   function activateLiveMotion() {
@@ -953,7 +978,7 @@
     if (cinematicParallaxBound || prefersReducedMotion()) return;
     cinematicParallaxBound = true;
     ensureHeroParallaxDecor();
-    const heroes = Array.from(document.querySelectorAll('.hero-shell'));
+    const heroes = Array.from(document.querySelectorAll('.hero-shell, .page-hero'));
     if (!heroes.length) return;
     let pointerX = window.innerWidth / 2;
     let pointerY = window.innerHeight / 2;
@@ -966,12 +991,12 @@
         const rect = hero.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
-        const dx = ((pointerX - centerX) / Math.max(rect.width, 1)) * 18;
-        const dy = ((pointerY - centerY) / Math.max(rect.height, 1)) * 14;
+        const dx = ((pointerX - centerX) / Math.max(rect.width, 1)) * 42;
+        const dy = ((pointerY - centerY) / Math.max(rect.height, 1)) * 30;
         const scrollDepth = Math.max(Math.min((window.innerHeight - rect.top) / (window.innerHeight + rect.height), 1), 0);
         hero.style.setProperty('--hero-pointer-x', `${dx.toFixed(1)}px`);
         hero.style.setProperty('--hero-pointer-y', `${dy.toFixed(1)}px`);
-        hero.style.setProperty('--hero-scroll-shift', `${(-scrollY * 0.03).toFixed(1)}px`);
+        hero.style.setProperty('--hero-scroll-shift', `${(-scrollY * 0.08 * (hero.classList.contains('hero-shell') ? 1 : 0.35)).toFixed(1)}px`);
         hero.style.setProperty('--hero-depth', scrollDepth.toFixed(3));
       });
       rafId = 0;
