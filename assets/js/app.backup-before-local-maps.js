@@ -263,76 +263,58 @@
     };
   }
 
-  function buildLocalMapMarkup(items, opts = {}) {
-    const compact = !!opts.compact;
-    const headerTitle = opts.title || t('campaignsTitle');
-    const headerLead = opts.lead || t('campaignsLead');
-    const points = (items || []).map((item, index) => {
-      const pos = projectToLocalMap(item.lat, item.lng);
-      const stateClass = Number(item.progress) >= 100 ? 'is-complete' : 'is-active';
-      const popupX = Math.min(72, Math.max(12, pos.x + (pos.x > 62 ? -20 : 6)));
-      const popupY = Math.min(82, Math.max(10, pos.y - 8));
-      const popup = `
-        <div class="local-map-popup" style="left:${popupX}%;top:${popupY}%">
-          <div class="local-popup-title">${item.name}</div>
-          <div class="local-popup-city">${item.city}</div>
-          <div class="small-muted"><strong>${t('popupCollected')}:</strong> ${formatNumber(item.collected, 'currency')}</div>
-          <div class="small-muted"><strong>${t('popupFull')}:</strong> ${formatNumber(item.fullAmount, 'currency')}</div>
-          <div class="small-muted"><strong>${t('popupProgress')}:</strong> ${Number(item.progress || 0).toFixed(1)}%</div>
-        </div>`;
-      const label = compact && index === 0 ? popup : '';
-      return `
-        <button class="local-map-point ${stateClass}" type="button" style="left:${pos.x}%;top:${pos.y}%" aria-label="${item.name}" data-popup-target="local-map-popup-${index}"></button>
-        <div class="local-map-popup" id="local-map-popup-${index}" style="left:${popupX}%;top:${popupY}%;display:${compact && index === 0 ? 'block' : 'none'}">
-          <div class="local-popup-title">${item.name}</div>
-          <div class="local-popup-city">${item.city}</div>
-          <div class="small-muted"><strong>${t('popupCollected')}:</strong> ${formatNumber(item.collected, 'currency')}</div>
-          <div class="small-muted"><strong>${t('popupFull')}:</strong> ${formatNumber(item.fullAmount, 'currency')}</div>
-          <div class="small-muted"><strong>${t('popupProgress')}:</strong> ${Number(item.progress || 0).toFixed(1)}%</div>
-        </div>`;
-    }).join('');
-
-    return `
-      <div class="local-map-frame">
-        <div class="local-map-header d-flex justify-content-between align-items-start gap-3">
-          <div>
-            <strong>${headerTitle}</strong>
-            <div class="small-muted">${headerLead}</div>
-          </div>
-          <span class="badge-soft">${(items || []).length}</span>
-        </div>
-        <div class="local-map-canvas${compact ? ' is-compact' : ''}">
-          <div class="local-map-label">SWEDEN</div>
-          <div class="local-map-sweden" aria-hidden="true"></div>
-          ${points}
-        </div>
-      </div>`;
-  }
-
-  function wireLocalMap(target) {
-    if (!target) return;
-    const popups = Array.from(target.querySelectorAll('.local-map-popup'));
-    target.querySelectorAll('[data-popup-target]').forEach((button) => {
-      button.addEventListener('click', () => {
-        const id = button.getAttribute('data-popup-target');
-        popups.forEach((popup) => {
-          popup.style.display = popup.id === id ? 'block' : 'none';
-        });
-      });
-    });
-  }
-
   function initCampaignsMap() {
     const mapTarget = document.getElementById('campaignsMap');
     const listTarget = document.getElementById('campaignsList');
     if (!listTarget) return;
     renderCampaignsList(listTarget);
     if (!mapTarget) return;
-    mapTarget.innerHTML = buildLocalMapMarkup(data.mosques || [], {
-      title: t('campaignsTitle'),
-      lead: t('campaignsLead')
+    if (typeof L === 'undefined') {
+      mapTarget.innerHTML = '<div class="d-flex align-items-center justify-content-center h-100 small-muted p-4">Map unavailable</div>';
+      return;
+    }
+
+    if (!window.vmbMap) {
+      window.vmbMap = L.map('campaignsMap', { scrollWheelZoom: false, zoomControl: true }).setView([62.2, 16.5], 5);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(window.vmbMap);
+      setTimeout(() => window.vmbMap.invalidateSize(), 250);
+    } else {
+      setTimeout(() => window.vmbMap.invalidateSize(), 250);
+    }
+
+    if (window.vmbMarkers) window.vmbMarkers.forEach(marker => window.vmbMap.removeLayer(marker));
+
+    window.vmbMarkers = (data.mosques || []).map((m) => {
+      const marker = L.circleMarker([m.lat, m.lng], {
+        radius: 9,
+        fillColor: Number(m.progress) >= 100 ? '#0f6d62' : '#c89f4a',
+        color: '#ffffff',
+        weight: 2,
+        fillOpacity: 0.95
+      }).addTo(window.vmbMap);
+
+      marker.bindPopup(`
+        <div style="min-width:240px">
+          <div style="font-weight:800;margin-bottom:5px">${m.name}</div>
+          <div style="font-size:13px;color:#607774">${m.city}</div>
+          <hr style="margin:10px 0">
+          <div><strong>${t('popupYear')}:</strong> ${m.year}</div>
+          <div><strong>${t('popupCollected')}:</strong> ${formatNumber(m.collected, 'currency')}</div>
+          <div><strong>${t('popupFull')}:</strong> ${formatNumber(m.fullAmount, 'currency')}</div>
+          <div><strong>${t('popupProgress')}:</strong> ${m.progress}%</div>
+          <div><strong>${t('fundingStatus')}:</strong> ${fundingText(m)}</div>
+          <div><strong>${t('popupStatus')}:</strong> ${statusText(m.status)}</div>
+        </div>`);
+
+      return marker;
     });
-    wireLocalMap(mapTarget);
+
+    if (window.vmbMarkers.length) {
+      window.vmbMap.fitBounds(L.featureGroup(window.vmbMarkers).getBounds().pad(0.2));
+    }
   }
 
   function parseCsv(text) {
@@ -533,24 +515,23 @@
     if (imageLink) imageLink.href = '../current/index.html';
 
     const mapTarget = document.getElementById('currentCampaignMap');
-    if (mapTarget) {
+    if (mapTarget && typeof L !== 'undefined') {
       const match = data.mosques.find(m => (c.location || '').toLowerCase().includes(m.city.toLowerCase()) || (c.title || '').toLowerCase().includes(m.city.toLowerCase()));
       const lat = match ? match.lat : 62.0;
       const lng = match ? match.lng : 15.0;
-      const collected = Number(c.raised || 0);
-      const fullAmount = Number(c.goal || collected || 0);
-      const progress = Number(c.progress || (fullAmount ? (collected / fullAmount) * 100 : 0));
-      const item = {
-        name: c.title || 'Current campaign',
-        city: c.location || 'Sweden',
-        lat, lng, collected, fullAmount, progress
-      };
-      mapTarget.innerHTML = buildLocalMapMarkup([item], {
-        compact: true,
-        title: c.title || t('currentTitle'),
-        lead: c.location || t('currentLocation')
-      });
-      wireLocalMap(mapTarget);
+      if (!window.currentMap) {
+        window.currentMap = L.map('currentCampaignMap', { scrollWheelZoom: false, zoomControl: true, preferCanvas: true }).setView([lat, lng], 7);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+          subdomains: 'abcd',
+          maxZoom: 19
+        }).addTo(window.currentMap);
+        setTimeout(() => window.currentMap.invalidateSize(), 200);
+      } else {
+        window.currentMap.setView([lat, lng], match ? 7 : 5);
+      }
+      if (window.currentMarker) window.currentMap.removeLayer(window.currentMarker);
+      window.currentMarker = L.marker([lat, lng]).addTo(window.currentMap).bindPopup(`<strong>${c.title}</strong><br>${c.location}`).openPopup();
     }
   }
 
