@@ -751,270 +751,12 @@
     });
   }
 
-
-  function ensureCursorGlow() {
-    if (prefersReducedMotion() || 'ontouchstart' in window) return null;
-    let glow = document.querySelector('.cursor-glow');
-    if (glow) return glow;
-    glow = document.createElement('div');
-    glow.className = 'cursor-glow';
-    glow.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(glow);
-    return glow;
-  }
-
-  function initCursorGlow() {
-    const glow = ensureCursorGlow();
-    if (!glow) return;
-    let rafId = 0;
-    let x = window.innerWidth / 2;
-    let y = window.innerHeight / 2;
-    let visible = false;
-    const render = () => {
-      glow.style.setProperty('--cursor-x', `${x}px`);
-      glow.style.setProperty('--cursor-y', `${y}px`);
-      glow.classList.toggle('is-visible', visible);
-      rafId = 0;
-    };
-    const queue = () => {
-      if (rafId) return;
-      rafId = requestAnimationFrame(render);
-    };
-    window.addEventListener('pointermove', (event) => {
-      x = event.clientX;
-      y = event.clientY;
-      visible = true;
-      queue();
-    }, { passive: true });
-    window.addEventListener('pointerdown', () => {
-      glow.classList.add('is-pressed');
-      window.setTimeout(() => glow.classList.remove('is-pressed'), 220);
-    }, { passive: true });
-    document.addEventListener('mouseleave', () => {
-      visible = false;
-      queue();
-    });
-    queue();
-  }
-
-  function seedAmbientOrbs() {
-    document.querySelectorAll('.hero-shell, .page-hero').forEach((section) => {
-      if (section.querySelector('.ambient-orbs')) return;
-      const wrap = document.createElement('div');
-      wrap.className = 'ambient-orbs';
-      wrap.setAttribute('aria-hidden', 'true');
-      for (let i = 0; i < 4; i += 1) {
-        const orb = document.createElement('span');
-        orb.className = 'ambient-orb';
-        orb.style.setProperty('--orb-delay', `${i * 1.3}s`);
-        orb.style.setProperty('--orb-left', `${12 + i * 23}%`);
-        orb.style.setProperty('--orb-size', `${88 + i * 34}px`);
-        wrap.appendChild(orb);
-      }
-      section.prepend(wrap);
-    });
-  }
-
-  function initSectionDrift() {
-    if (prefersReducedMotion()) return;
-    seedAmbientOrbs();
-    const drifting = Array.from(document.querySelectorAll('.panel, .hero-card, .hero-visual, .mosque-item, .card-soft, .membership-box, .journey-card'));
-    if (!drifting.length) return;
-    let rafId = 0;
-    const update = () => {
-      const viewport = window.innerHeight || 1;
-      drifting.forEach((el, index) => {
-        const rect = el.getBoundingClientRect();
-        if (rect.bottom < -40 || rect.top > viewport + 40) return;
-        const center = rect.top + rect.height / 2;
-        const ratio = (center - viewport / 2) / viewport;
-        const shift = Math.max(Math.min(ratio * -14, 14), -14);
-        const rotate = Math.max(Math.min(ratio * 2.4 + (index % 2 ? 0.6 : -0.6), 2.6), -2.6);
-        el.style.setProperty('--drift-y', `${shift.toFixed(2)}px`);
-        el.style.setProperty('--drift-r', `${rotate.toFixed(2)}deg`);
-      });
-      rafId = 0;
-    };
-    const queue = () => {
-      if (rafId) return;
-      rafId = requestAnimationFrame(update);
-    };
-    window.addEventListener('scroll', queue, { passive: true });
-    window.addEventListener('resize', queue);
-    queue();
-  }
-
   function activateLiveMotion() {
     bindWindowMotion();
     decorateRevealOrder();
     enhanceInteractiveSurfaces();
     enhanceButtons();
     document.body.classList.add('live-ui-ready');
-  }
-
-  let pageLoaderStartedAt = 0;
-
-  function getBrandLogoSrc() {
-    const brandImg = document.querySelector('.navbar-brand .brand-mark img');
-    return brandImg ? brandImg.getAttribute('src') : '';
-  }
-
-  function loaderStatusText() {
-    return lang() === 'ar' ? 'جار تجهيز التجربة' : 'Preparing the experience';
-  }
-
-  function ensurePageLoader() {
-    let loader = document.querySelector('.page-loader');
-    if (loader) return loader;
-    loader = document.createElement('div');
-    loader.className = 'page-loader';
-    loader.setAttribute('aria-hidden', 'true');
-    loader.innerHTML = `
-      <div class="page-loader__veil"></div>
-      <div class="page-loader__content">
-        <div class="page-loader__logo-wrap">
-          <span class="page-loader__ring"></span>
-          <img class="page-loader__logo" src="${getBrandLogoSrc()}" alt="Vi Mår Bra">
-        </div>
-        <div class="page-loader__name">Vi Mår Bra</div>
-        <div class="page-loader__status">${loaderStatusText()}</div>
-        <div class="page-loader__line"><span></span></div>
-      </div>`;
-    document.body.appendChild(loader);
-    document.body.classList.add('page-loading');
-    pageLoaderStartedAt = performance.now();
-    requestAnimationFrame(() => loader.classList.add('is-visible'));
-    return loader;
-  }
-
-  function finishPageLoader() {
-    const loader = document.querySelector('.page-loader');
-    if (!loader || loader.classList.contains('is-done')) return;
-    loader.classList.add('is-done');
-    document.body.classList.remove('page-loading');
-    window.setTimeout(() => loader.remove(), 950);
-  }
-
-  function initLoadingIntro() {
-    if (prefersReducedMotion()) return;
-    ensurePageLoader();
-    const done = () => {
-      const elapsed = performance.now() - pageLoaderStartedAt;
-      const remaining = Math.max(0, 900 - elapsed);
-      window.setTimeout(finishPageLoader, remaining);
-    };
-    if (document.readyState === 'complete') done();
-    else window.addEventListener('load', done, { once: true });
-    window.setTimeout(done, 2200);
-  }
-
-  function ensurePageTransitionCurtain() {
-    let curtain = document.querySelector('.page-transition-curtain');
-    if (curtain) return curtain;
-    curtain = document.createElement('div');
-    curtain.className = 'page-transition-curtain';
-    curtain.setAttribute('aria-hidden', 'true');
-    curtain.innerHTML = `
-      <div class="page-transition-curtain__pane"></div>
-      <div class="page-transition-curtain__pane page-transition-curtain__pane--second"></div>
-      <div class="page-transition-curtain__center">
-        <img src="${getBrandLogoSrc()}" alt="Vi Mår Bra">
-      </div>`;
-    document.body.appendChild(curtain);
-    return curtain;
-  }
-
-  function isTransitionEligible(link) {
-    if (!link || link.dataset.noTransition !== undefined) return false;
-    const rawHref = link.getAttribute('href') || '';
-    if (!rawHref || rawHref.startsWith('#') || rawHref.startsWith('mailto:') || rawHref.startsWith('tel:') || rawHref.startsWith('javascript:')) return false;
-    if (link.target && link.target !== '_self') return false;
-    if (link.hasAttribute('download')) return false;
-    let targetUrl;
-    try {
-      targetUrl = new URL(link.href, window.location.href);
-    } catch (error) {
-      return false;
-    }
-    if (targetUrl.origin !== window.location.origin) return false;
-    if (targetUrl.pathname === window.location.pathname && targetUrl.search === window.location.search) return false;
-    return true;
-  }
-
-  function initPageTransitions() {
-    const curtain = ensurePageTransitionCurtain();
-    window.addEventListener('pageshow', () => {
-      curtain.classList.remove('is-active');
-      document.body.classList.remove('page-transitioning');
-    });
-    document.addEventListener('click', (event) => {
-      if (event.defaultPrevented || event.button !== 0) return;
-      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-      const link = event.target.closest('a[href]');
-      if (!isTransitionEligible(link)) return;
-      event.preventDefault();
-      curtain.classList.add('is-active');
-      document.body.classList.add('page-transitioning');
-      window.setTimeout(() => {
-        window.location.href = link.href;
-      }, 380);
-    });
-  }
-
-  let cinematicParallaxBound = false;
-
-  function ensureHeroParallaxDecor() {
-    document.querySelectorAll('.hero-shell').forEach((hero) => {
-      if (hero.querySelector('.hero-parallax')) return;
-      const layer = document.createElement('div');
-      layer.className = 'hero-parallax';
-      layer.setAttribute('aria-hidden', 'true');
-      layer.innerHTML = '<span class="hero-parallax__grid"></span><span class="hero-parallax__blob hero-parallax__blob--a"></span><span class="hero-parallax__blob hero-parallax__blob--b"></span><span class="hero-parallax__ring"></span>';
-      hero.prepend(layer);
-    });
-  }
-
-  function initCinematicParallax() {
-    if (cinematicParallaxBound || prefersReducedMotion()) return;
-    cinematicParallaxBound = true;
-    ensureHeroParallaxDecor();
-    const heroes = Array.from(document.querySelectorAll('.hero-shell, .page-hero'));
-    if (!heroes.length) return;
-    let pointerX = window.innerWidth / 2;
-    let pointerY = window.innerHeight / 2;
-    let rafId = 0;
-
-    const update = () => {
-      const scrollY = window.scrollY || window.pageYOffset || 0;
-      document.documentElement.style.setProperty('--page-parallax-shift', `${Math.min(scrollY * 0.06, 42).toFixed(1)}px`);
-      heroes.forEach((hero) => {
-        const rect = hero.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const dx = ((pointerX - centerX) / Math.max(rect.width, 1)) * 42;
-        const dy = ((pointerY - centerY) / Math.max(rect.height, 1)) * 30;
-        const scrollDepth = Math.max(Math.min((window.innerHeight - rect.top) / (window.innerHeight + rect.height), 1), 0);
-        hero.style.setProperty('--hero-pointer-x', `${dx.toFixed(1)}px`);
-        hero.style.setProperty('--hero-pointer-y', `${dy.toFixed(1)}px`);
-        hero.style.setProperty('--hero-scroll-shift', `${(-scrollY * 0.08 * (hero.classList.contains('hero-shell') ? 1 : 0.35)).toFixed(1)}px`);
-        hero.style.setProperty('--hero-depth', scrollDepth.toFixed(3));
-      });
-      rafId = 0;
-    };
-
-    const queueUpdate = () => {
-      if (rafId) return;
-      rafId = requestAnimationFrame(update);
-    };
-
-    window.addEventListener('pointermove', (event) => {
-      pointerX = event.clientX;
-      pointerY = event.clientY;
-      queueUpdate();
-    }, { passive: true });
-    window.addEventListener('scroll', queueUpdate, { passive: true });
-    window.addEventListener('resize', queueUpdate);
-    queueUpdate();
   }
 
   let currentCampaignTimer = null;
@@ -1038,13 +780,10 @@
     hydrateLinks();
     initReveal();
     activateLiveMotion();
-    initCursorGlow();
-    initSectionDrift();
   });
 
   document.addEventListener('DOMContentLoaded', function () {
     translatePage();
-    initLoadingIntro();
     hydrateCounters();
     renderPreview();
     initCampaignsMap();
@@ -1053,9 +792,5 @@
     hydrateLinks();
     initReveal();
     activateLiveMotion();
-    initPageTransitions();
-    initCinematicParallax();
-    initCursorGlow();
-    initSectionDrift();
   });
 })();

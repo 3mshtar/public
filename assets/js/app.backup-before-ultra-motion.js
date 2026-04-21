@@ -751,99 +751,6 @@
     });
   }
 
-
-  function ensureCursorGlow() {
-    if (prefersReducedMotion() || 'ontouchstart' in window) return null;
-    let glow = document.querySelector('.cursor-glow');
-    if (glow) return glow;
-    glow = document.createElement('div');
-    glow.className = 'cursor-glow';
-    glow.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(glow);
-    return glow;
-  }
-
-  function initCursorGlow() {
-    const glow = ensureCursorGlow();
-    if (!glow) return;
-    let rafId = 0;
-    let x = window.innerWidth / 2;
-    let y = window.innerHeight / 2;
-    let visible = false;
-    const render = () => {
-      glow.style.setProperty('--cursor-x', `${x}px`);
-      glow.style.setProperty('--cursor-y', `${y}px`);
-      glow.classList.toggle('is-visible', visible);
-      rafId = 0;
-    };
-    const queue = () => {
-      if (rafId) return;
-      rafId = requestAnimationFrame(render);
-    };
-    window.addEventListener('pointermove', (event) => {
-      x = event.clientX;
-      y = event.clientY;
-      visible = true;
-      queue();
-    }, { passive: true });
-    window.addEventListener('pointerdown', () => {
-      glow.classList.add('is-pressed');
-      window.setTimeout(() => glow.classList.remove('is-pressed'), 220);
-    }, { passive: true });
-    document.addEventListener('mouseleave', () => {
-      visible = false;
-      queue();
-    });
-    queue();
-  }
-
-  function seedAmbientOrbs() {
-    document.querySelectorAll('.hero-shell, .page-hero').forEach((section) => {
-      if (section.querySelector('.ambient-orbs')) return;
-      const wrap = document.createElement('div');
-      wrap.className = 'ambient-orbs';
-      wrap.setAttribute('aria-hidden', 'true');
-      for (let i = 0; i < 4; i += 1) {
-        const orb = document.createElement('span');
-        orb.className = 'ambient-orb';
-        orb.style.setProperty('--orb-delay', `${i * 1.3}s`);
-        orb.style.setProperty('--orb-left', `${12 + i * 23}%`);
-        orb.style.setProperty('--orb-size', `${88 + i * 34}px`);
-        wrap.appendChild(orb);
-      }
-      section.prepend(wrap);
-    });
-  }
-
-  function initSectionDrift() {
-    if (prefersReducedMotion()) return;
-    seedAmbientOrbs();
-    const drifting = Array.from(document.querySelectorAll('.panel, .hero-card, .hero-visual, .mosque-item, .card-soft, .membership-box, .journey-card'));
-    if (!drifting.length) return;
-    let rafId = 0;
-    const update = () => {
-      const viewport = window.innerHeight || 1;
-      drifting.forEach((el, index) => {
-        const rect = el.getBoundingClientRect();
-        if (rect.bottom < -40 || rect.top > viewport + 40) return;
-        const center = rect.top + rect.height / 2;
-        const ratio = (center - viewport / 2) / viewport;
-        const shift = Math.max(Math.min(ratio * -14, 14), -14);
-        const rotate = Math.max(Math.min(ratio * 2.4 + (index % 2 ? 0.6 : -0.6), 2.6), -2.6);
-        el.style.setProperty('--drift-y', `${shift.toFixed(2)}px`);
-        el.style.setProperty('--drift-r', `${rotate.toFixed(2)}deg`);
-      });
-      rafId = 0;
-    };
-    const queue = () => {
-      if (rafId) return;
-      rafId = requestAnimationFrame(update);
-    };
-    window.addEventListener('scroll', queue, { passive: true });
-    window.addEventListener('resize', queue);
-    queue();
-  }
-
   function activateLiveMotion() {
     bindWindowMotion();
     decorateRevealOrder();
@@ -1038,8 +945,6 @@
     hydrateLinks();
     initReveal();
     activateLiveMotion();
-    initCursorGlow();
-    initSectionDrift();
   });
 
   document.addEventListener('DOMContentLoaded', function () {
@@ -1055,7 +960,5 @@
     activateLiveMotion();
     initPageTransitions();
     initCinematicParallax();
-    initCursorGlow();
-    initSectionDrift();
   });
 })();
