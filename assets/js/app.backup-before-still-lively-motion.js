@@ -708,10 +708,16 @@
       const rect = el.getBoundingClientRect();
       const px = (event.clientX - rect.left) / rect.width;
       const py = (event.clientY - rect.top) / rect.height;
+      const rx = (0.5 - py) * 3.5;
+      const ry = (px - 0.5) * 4.5;
+      el.style.setProperty('--tilt-x', `${rx.toFixed(2)}deg`);
+      el.style.setProperty('--tilt-y', `${ry.toFixed(2)}deg`);
       el.style.setProperty('--glow-x', `${(px * 100).toFixed(2)}%`);
       el.style.setProperty('--glow-y', `${(py * 100).toFixed(2)}%`);
     });
     el.addEventListener('pointerleave', () => {
+      el.style.removeProperty('--tilt-x');
+      el.style.removeProperty('--tilt-y');
       el.style.removeProperty('--glow-x');
       el.style.removeProperty('--glow-y');
     });
@@ -731,6 +737,16 @@
       btn.classList.add('magnetic-btn');
       if (btn.dataset.motionBound === '1') return;
       btn.dataset.motionBound = '1';
+      if (prefersReducedMotion() || 'ontouchstart' in window) return;
+      btn.addEventListener('pointermove', (event) => {
+        const rect = btn.getBoundingClientRect();
+        const dx = ((event.clientX - rect.left) / rect.width - 0.5) * 4;
+        const dy = ((event.clientY - rect.top) / rect.height - 0.5) * 3;
+        btn.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
+      });
+      btn.addEventListener('pointerleave', () => {
+        btn.style.transform = '';
+      });
     });
   }
 
@@ -782,7 +798,21 @@
   }
 
   function seedAmbientOrbs() {
-    return;
+    document.querySelectorAll('.hero-shell').forEach((section) => {
+      if (section.querySelector('.ambient-orbs')) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'ambient-orbs';
+      wrap.setAttribute('aria-hidden', 'true');
+      for (let i = 0; i < 4; i += 1) {
+        const orb = document.createElement('span');
+        orb.className = 'ambient-orb';
+        orb.style.setProperty('--orb-delay', `${i * 1.3}s`);
+        orb.style.setProperty('--orb-left', `${12 + i * 23}%`);
+        orb.style.setProperty('--orb-size', `${88 + i * 34}px`);
+        wrap.appendChild(orb);
+      }
+      section.prepend(wrap);
+    });
   }
 
   function initSectionDrift() {
@@ -923,13 +953,43 @@
     if (cinematicParallaxBound || prefersReducedMotion()) return;
     cinematicParallaxBound = true;
     ensureHeroParallaxDecor();
-    document.documentElement.style.setProperty('--page-parallax-shift', '0px');
-    document.querySelectorAll('.hero-shell').forEach((hero) => {
-      hero.style.setProperty('--hero-pointer-x', '0px');
-      hero.style.setProperty('--hero-pointer-y', '0px');
-      hero.style.setProperty('--hero-scroll-shift', '0px');
-      hero.style.setProperty('--hero-depth', '.5');
-    });
+    const heroes = Array.from(document.querySelectorAll('.hero-shell'));
+    if (!heroes.length) return;
+    let pointerX = window.innerWidth / 2;
+    let pointerY = window.innerHeight / 2;
+    let rafId = 0;
+
+    const update = () => {
+      const scrollY = window.scrollY || window.pageYOffset || 0;
+      document.documentElement.style.setProperty('--page-parallax-shift', `${Math.min(scrollY * 0.06, 42).toFixed(1)}px`);
+      heroes.forEach((hero) => {
+        const rect = hero.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const dx = ((pointerX - centerX) / Math.max(rect.width, 1)) * 18;
+        const dy = ((pointerY - centerY) / Math.max(rect.height, 1)) * 14;
+        const scrollDepth = Math.max(Math.min((window.innerHeight - rect.top) / (window.innerHeight + rect.height), 1), 0);
+        hero.style.setProperty('--hero-pointer-x', `${dx.toFixed(1)}px`);
+        hero.style.setProperty('--hero-pointer-y', `${dy.toFixed(1)}px`);
+        hero.style.setProperty('--hero-scroll-shift', `${(-scrollY * 0.03).toFixed(1)}px`);
+        hero.style.setProperty('--hero-depth', scrollDepth.toFixed(3));
+      });
+      rafId = 0;
+    };
+
+    const queueUpdate = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(update);
+    };
+
+    window.addEventListener('pointermove', (event) => {
+      pointerX = event.clientX;
+      pointerY = event.clientY;
+      queueUpdate();
+    }, { passive: true });
+    window.addEventListener('scroll', queueUpdate, { passive: true });
+    window.addEventListener('resize', queueUpdate);
+    queueUpdate();
   }
 
   let currentCampaignTimer = null;
@@ -972,6 +1032,5 @@
     initCinematicParallax();
     initCursorGlow();
     initSectionDrift();
-    document.body.classList.add('vmb-premium-polish-ready');
   });
 })();

@@ -972,6 +972,5 @@
     initCinematicParallax();
     initCursorGlow();
     initSectionDrift();
-    document.body.classList.add('vmb-premium-polish-ready');
   });
 })();
