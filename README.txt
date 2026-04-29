@@ -30,3 +30,6 @@ field:
   currentCampaignSheet.appsScriptUrl
 
 The current campaign is configured for Katrineholms moské with a goal of 1,500,000 KR.
+
+
+Update added: current campaign now uses language-specific posters (AR/SV) and homepage poster links to current campaign page.

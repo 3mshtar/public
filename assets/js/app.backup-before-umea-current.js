@@ -483,9 +483,7 @@
         progress: Number.isFinite(progress) ? progress : current.progress,
         updatedAt: src.updatedAt || src.updated_at || cfg.sourceLabel || current.updatedAt,
         notes: src.notes || src.note || current.notes,
-        imageUrl: src.imageUrl || src.image || current.imageUrl,
-        imageUrlAr: src.imageUrlAr || src.imageUrl_ar || src.image_ar || current.imageUrlAr,
-        imageUrlSv: src.imageUrlSv || src.imageUrl_sv || src.image_sv || current.imageUrlSv
+        imageUrl: src.imageUrl || src.image || current.imageUrl
       };
     }
 
@@ -614,7 +612,6 @@
     const resolvedImage = currentCampaignImageForLang(c);
     if (imageEl && resolvedImage) { imageEl.src = resolvedImage; imageEl.alt = c.title || t('currentTitle'); }
     if (imageLink) imageLink.href = '../current/index.html';
-    syncCurrentCampaignPromos(c);
 
     const mapTarget = document.getElementById('currentCampaignMap');
     if (mapTarget) {
