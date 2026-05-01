@@ -2628,3 +2628,70 @@ body.page-transitioning {
     margin: .2rem .5rem;
   }
 }
+
+
+/* Final Umea fix */
+.topbar .navbar-brand{min-width:0;max-width:min(100%,320px);overflow:hidden;}
+.topbar .brand-copy{min-width:0;max-width:220px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;}
+.topbar .brand-copy .brand-name,.topbar .brand-copy .brand-sub{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+body.lang-sv .topbar .brand-copy{max-width:190px;}
+body.lang-sv .topbar .brand-copy .brand-name{font-size:clamp(1rem,1.35vw,1.2rem);}
+body.lang-sv .topbar .brand-copy .brand-sub{display:block;max-width:170px;font-size:.68rem;}
+@media (max-width: 1199px){
+  .topbar .brand-copy .brand-sub{display:none !important;}
+  .topbar .brand-copy{max-width:170px;}
+}
+@media (max-width: 991px){
+  .topbar .navbar>.container{display:flex;align-items:center;justify-content:space-between;gap:.75rem;}
+  .topbar .navbar-brand{flex:1 1 auto;max-width:calc(100% - 78px);gap:.75rem !important;}
+  .topbar .brand-copy{max-width:calc(100% - 66px);}
+  .topbar .brand-copy .brand-name{font-size:1.02rem;}
+}
+@media (max-width: 575px){
+  .topbar .navbar-brand{max-width:calc(100% - 72px);}
+  .topbar .brand-copy{max-width:150px;}
+  .topbar .brand-copy .brand-name{font-size:.98rem;}
+}
+body.lang-sv .hero-shell .display-title{font-size:clamp(2.65rem,6.7vw,6rem);line-height:.98;max-width:11ch;overflow-wrap:anywhere;word-break:normal;}
+body.lang-sv .hero-shell .hero-copy{max-width:58ch;}
+body.lang-sv .hero-shell .eyebrow{max-width:max-content;}
+@media (max-width: 991px){
+  body.lang-sv .hero-shell .display-title{font-size:clamp(2.3rem,10vw,4.2rem);max-width:8.3ch;}
+}
+
+
+/* Umea hard fix */
+.topbar .navbar-brand {min-width:0; max-width:100%; gap:.85rem;}
+.topbar .brand-copy{min-width:0;max-width:clamp(120px,16vw,210px);overflow:hidden;}
+.topbar .brand-copy .brand-name{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(1rem,1.15vw,1.25rem);}
+.topbar .brand-copy .brand-sub{display:none !important;}
+body.lang-sv .hero-shell .display-title{font-size:clamp(2.1rem,5.3vw,5rem) !important;line-height:1.03 !important;max-width:11.5ch !important;overflow-wrap:normal;word-break:normal;text-wrap:balance;}
+body.lang-sv .hero-shell .hero-copy{max-width:52ch;margin-inline:0;}
+@media (max-width: 991px){
+  .topbar .navbar-brand{gap:.65rem; max-width:calc(100% - 88px);}
+  .topbar .brand-copy{max-width:calc(100vw - 150px);}
+  .topbar .brand-copy .brand-name{font-size:1rem;}
+}
+@media (max-width: 575px){
+  body.lang-sv .hero-shell .display-title{font-size:clamp(2rem,11vw,3.3rem) !important;max-width:8.8ch !important;line-height:1.02 !important;}
+  .topbar .navbar-brand{max-width:calc(100% - 82px);}
+  .topbar .brand-copy{max-width:calc(100vw - 138px);}
+}
+
+
+/* Umea emergency cleanup */
+.topbar .brand-copy .brand-sub{display:none !important;}
+.topbar .navbar-brand{max-width:min(100%,260px) !important;flex:0 1 260px;overflow:hidden;}
+.topbar .brand-copy{max-width:150px !important;min-width:0;}
+.topbar .brand-copy .brand-name{font-size:clamp(.96rem,1.15vw,1.18rem) !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@media (max-width: 991px){
+  .topbar .navbar>.container{display:flex;align-items:center;justify-content:space-between;gap:.5rem;}
+  .topbar .navbar-brand{max-width:calc(100vw - 116px) !important;gap:.6rem !important;}
+  .topbar .brand-copy{max-width:calc(100vw - 170px) !important;}
+  .topbar .brand-copy .brand-name{font-size:.95rem !important;}
+}
+body.lang-sv .hero-shell .display-title{font-size:clamp(1.95rem,4.8vw,4.6rem) !important;line-height:1.02 !important;max-width:9.2ch !important;text-wrap:balance;word-break:normal;overflow-wrap:normal;}
+body.lang-sv .hero-copy{max-width:60ch;}
+@media (max-width: 991px){
+  body.lang-sv .hero-shell .display-title{font-size:clamp(2rem,9.2vw,3.35rem) !important;max-width:8.2ch !important;}
+}

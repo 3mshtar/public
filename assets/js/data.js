@@ -243,17 +243,6 @@ window.VMB_DATA = {
       "lng": 18.7153
     },
     {
-      "id": 23,
-      "name": "Katrineholm",
-      "city": "Katrineholm",
-      "year": "May 2025",
-      "cost": 1000000,
-      "progress": 75,
-      "status": "active",
-      "lat": 58.9958,
-      "lng": 16.2072
-    },
-    {
       "id": 24,
       "name": "Vetlanda",
       "city": "Vetlanda",
@@ -286,8 +275,10 @@ window.VMB_DATA = {
     "imageUrl": "../assets/img/current-campaign-ar-umea.png",
     "imageUrlAr": "../assets/img/current-campaign-ar-umea.png",
     "imageUrlSv": "../assets/img/current-campaign-sv-umea.png",
-    "updatedAt": "Ready",
-    "notes": "الحملة الحالية مخصصة لدعم مشروع Umeå، مع عرض بصري مختلف للعربية والسويدية."
+    "updatedAt": "2026-04-29 05:18:48",
+    "notes": "الحملة الحالية مخصصة لدعم مشروع Umeå، مع عرض بصري مختلف للعربية والسويدية.",
+    "lat": 63.8258,
+    "lng": 20.263
   },
   "currentCampaignSheet": {
     "appsScriptUrl": "",

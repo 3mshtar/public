@@ -12,24 +12,24 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet" id="bootstrapCss">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
-  <link href="../assets/css/styles.css" rel="stylesheet">
+  <link href="../assets/css/styles.css?v=umea2" rel="stylesheet">
 </head>
 <body class="">
   <div class="topbar">
     <nav class="navbar navbar-expand-lg">
       <div class="container py-2">
-        <a class="navbar-brand d-flex align-items-center gap-3" href="../">
+        <a class="navbar-brand d-flex align-items-center gap-3" href="/">
           <span class="brand-mark"><img src="../assets/img/logo-header-vmboutline.png" alt="Vi Mår Bra emblem"></span>
           <span class="brand-copy"><span class="brand-name">Vi Mår Bra</span><span class="brand-sub" data-i18n="siteTagline"></span></span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="mainNav">
           <ul class="navbar-nav mx-auto gap-lg-1"><li class="nav-item"><a class="nav-link" href="../" data-i18n="navHome"></a></li>
-<li class="nav-item"><a class="nav-link" href="../campaigns/" data-i18n="navCampaigns"></a></li>
-<li class="nav-item"><a class="nav-link active" href="../current/" data-i18n="navCurrent"></a></li>
-<li class="nav-item"><a class="nav-link" href="../membership/" data-i18n="navMembership"></a></li>
-<li class="nav-item"><a class="nav-link" href="../about/" data-i18n="navAbout"></a></li>
-<li class="nav-item"><a class="nav-link" href="../contact/" data-i18n="navContact"></a></li></ul>
+<li class="nav-item"><a class="nav-link" href="/campaigns/" data-i18n="navCampaigns"></a></li>
+<li class="nav-item"><a class="nav-link active" href="/current/" data-i18n="navCurrent"></a></li>
+<li class="nav-item"><a class="nav-link" href="/membership/" data-i18n="navMembership"></a></li>
+<li class="nav-item"><a class="nav-link" href="/about/" data-i18n="navAbout"></a></li>
+<li class="nav-item"><a class="nav-link" href="/contact/" data-i18n="navContact"></a></li></ul>
           <div class="btn-group mt-3 mt-lg-0">
             <button class="btn btn-lang" data-lang-btn="ar">AR</button>
             <button class="btn btn-lang" data-lang-btn="sv">SV</button>
@@ -68,7 +68,7 @@
             <div>
               <div class="eyebrow mb-3"><i class="bi bi-heart-pulse"></i> <span data-i18n="currentTitle"></span></div>
               <h2 class="section-title mb-2" id="currentTitleText">Umeå</h2>
-              <div class="small-muted"><span data-i18n="currentLocation"></span>: <strong id="currentLocationText">Sverige</strong></div>
+              <div class="small-muted"><span data-i18n="currentLocation"></span>: <strong id="currentLocationText">Umeå</strong></div>
             </div>
           </div>
           <div class="metric-strip mb-4">
@@ -87,8 +87,8 @@
       </div>
       <div class="col-lg-5 reveal">
         <div class="panel p-3 mb-4 text-center">
-          <a id="currentCampaignImageLink" href="../current/index.html" class="d-block">
-            <img id="currentCampaignImage" src="../assets/img/current-campaign-ar-umea.png" alt="Aktuell kampanj" class="img-fluid rounded-4 shadow-sm">
+          <a id="currentCampaignImageLink" href="/current/" class="d-block">
+            <img id="currentCampaignImage" src="../assets/img/current-campaign-ar-umea.png?v=umea2" alt="Umeå campaign poster" class="img-fluid rounded-4 shadow-sm">
           </a>
         </div>
         <div class="map-shell vmb-map-shell"><div id="currentCampaignMapCanvas" class="campaigns-live-map is-small" aria-label="Current campaign map"></div></div>
@@ -112,9 +112,9 @@
           <p class="mb-0" data-i18n="footerText"></p>
         </div>
         <div class="col-lg-6 text-lg-end">
-          <a class="me-3" href="../about/" data-i18n="navAbout"></a>
-          <a class="me-3" href="../membership/" data-i18n="navMembership"></a>
-          <a href="../contact/" data-i18n="navContact"></a>
+          <a class="me-3" href="/about/" data-i18n="navAbout"></a>
+          <a class="me-3" href="/membership/" data-i18n="navMembership"></a>
+          <a href="/contact/" data-i18n="navContact"></a>
           <div class="mt-3 small text-white-50">© <span id="yearNow"></span> Vi Mår Bra</div>
         </div>
       </div>
@@ -123,9 +123,19 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-  <script src="../assets/js/data.js"></script>
-  <script src="../assets/js/app.js"></script>
-  <script src="../assets/js/maps.js"></script>
+  <script src="../assets/js/data.js?v=umea2"></script>
+  
+  <script>
+    window.VMB_DATA = {
+      currentCampaignSheet: {
+        appsScriptUrl: 'https://script.google.com/macros/s/AKfycbzgzWOa2Pgswxx_XDxPfLd2jWeK6n-kR3jHA-p0A9DIxAscvX6DgDQiIGjx35MkRUSF/exec',
+        sourceLabel: 'Live'
+      }
+    };
+  </script>
+
+  <script src="../assets/js/app.js?v=umea2"></script>
+  <script src="../assets/js/maps.js?v=umea2"></script>
 
   <div class="modal fade" id="currentDonateModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -157,7 +167,6 @@
       </div>
     </div>
   </div>
-
 
 </body>
 </html>

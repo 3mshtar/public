@@ -24,7 +24,7 @@
       totalCollected: 'إجمالي ما جمعناه', totalMosques: 'إجمالي المساجد', completedProjects: 'اكتمل جمع المبلغ', totalFull: 'إجمالي المبالغ الكاملة',
       currentTitle: 'الحملة الحالية', currentLead: 'الحملة الحالية مستقلة عن الحملات السابقة، وتُعرض أرقامها بشكل واضح ومباشر مع تحديثات متواصلة.',
       goal: 'المبلغ الكامل', raised: 'المبلغ المحصل', remaining: 'المبلغ المتبقي', lastUpdated: 'آخر تحديث', donateNow: 'ادعم الحملة الآن',
-      currentHint: 'هنا يتم تحديث كل مبلغ وكل تبرع لحظة بلحظة ليظهر للزائر مستوى التقدم ومسار الحملة بصورة واضحة وشفافة.', currentLocation: 'موقع الحملة الحالية', liveSync: 'تحديث مباشر', donationModalTitle: 'اختر طريقة التبرع للحملة الحالية', donationModalLead: 'اختر وسيلة التبرع الأنسب لك لدعم مسجد Katrineholm مباشرة.', donateViaSwish: 'تبرع سريع عبر سويش', donateViaStripe: 'تبرع بالبطاقة عبر Stripe', donateViaPaypal: 'تبرع عبر PayPal',
+      currentHint: 'هنا يتم تحديث كل مبلغ وكل تبرع لحظة بلحظة ليظهر للزائر مستوى التقدم ومسار الحملة بصورة واضحة وشفافة.', currentLocation: 'موقع الحملة الحالية', liveSync: 'تحديث مباشر', donationModalTitle: 'اختر طريقة التبرع للحملة الحالية', donationModalLead: 'اختر وسيلة التبرع الأنسب لك لدعم حملة Umeå مباشرة.', donateViaSwish: 'تبرع سريع عبر سويش', donateViaStripe: 'تبرع بالبطاقة عبر Stripe', donateViaPaypal: 'تبرع عبر PayPal',
       membershipTitle: 'عضوية داعمة مستمرة', membershipLead: 'ادخل كعضو مساهم وكن جزءًا من العطاء المستمر الذي يبني المساجد ويدعم المشاريع ذات الأولوية.',
       membershipCardTitle: 'عضوية Vi Mår Bra', membershipCardText: 'الاشتراك يتم بشكل آمن عبر Stripe Checkout، ليكون دعمك الشهري ثابتًا وسهلًا.', membershipBtn: 'اشترك الآن',
       member1: 'مساهمة شهرية سهلة', member2: 'دعم أسرع للمشاريع ذات الأولوية', member3: 'وسيلة آمنة واحترافية للدفع', donationMethodsTitle: 'طرق التبرع الأخرى',
@@ -44,7 +44,7 @@
       siteTagline: 'Kampanj för att bygga och utveckla moskéer i Sverige',
       navHome: 'Hem', navCampaigns: 'Tidigare kampanjer', navCurrent: 'Aktuell kampanj', navMembership: 'Medlemskap', navAbout: 'Om oss', navContact: 'Kontakt',
       heroEyebrow: 'Tillsammans skapar vi en sadaqa jariya',
-      heroTitle: 'En välgörenhetskampanj för att bygga och utveckla moskéer i Sverige',
+      heroTitle: 'En välgörenhetskampanj för moskéer i Sverige',
       heroLead: 'En ideell plattform som kopplar givaren till verklig påverkan och visar resultat, behov och pågående insamlingar med ett varmt och modernt uttryck.',
       heroCta1: 'Bli medlem nu', heroCta2: 'Se resultaten', heroBubble1: '25 moskéer i resan', heroBubble2: 'Live siffror och tydlig transparens',
       stat1: 'Moskéer vi har stöttat', stat2: 'Total budget', stat3: 'Slutförda projekt', stat4: 'Två språk',
@@ -62,7 +62,7 @@
       totalCollected: 'Totalt insamlat av oss', totalMosques: 'Antal moskéer', completedProjects: 'Insamling klar', totalFull: 'Totala projektbelopp',
       currentTitle: 'Aktuell kampanj', currentLead: 'Siffrorna för den aktuella kampanjen visas tydligt och uppdateras löpande utan koppling till tidigare kampanjer.',
       goal: 'Fullt mål', raised: 'Insamlat', remaining: 'Kvar', lastUpdated: 'Senast uppdaterad', donateNow: 'Stöd kampanjen nu',
-      currentHint: 'Här uppdateras varje belopp och varje donation löpande så att besökaren ser kampanjens utveckling tydligt och transparent.', currentLocation: 'Plats för aktuell kampanj', liveSync: 'Direkt uppdatering', donationModalTitle: 'Välj donationssätt för den aktuella kampanjen', donationModalLead: 'Välj det sätt som passar dig bäst för att stödja Katrineholms moské direkt.', donateViaSwish: 'Snabb donation via Swish', donateViaStripe: 'Kortbetalning via Stripe', donateViaPaypal: 'Donation via PayPal',
+      currentHint: 'Här uppdateras varje belopp och varje donation löpande så att besökaren ser kampanjens utveckling tydligt och transparent.', currentLocation: 'Plats för aktuell kampanj', liveSync: 'Direkt uppdatering', donationModalTitle: 'Välj donationssätt för den aktuella kampanjen', donationModalLead: 'Välj det sätt som passar dig bäst för att stödja Umeå direkt.', donateViaSwish: 'Snabb donation via Swish', donateViaStripe: 'Kortbetalning via Stripe', donateViaPaypal: 'Donation via PayPal',
       membershipTitle: 'Löpande stödmedlemskap', membershipLead: 'Bli stödmedlem och var med i ett kontinuerligt givande som bygger moskéer och stärker prioriterade projekt.',
       membershipCardTitle: 'Vi Mår Bra-medlemskap', membershipCardText: 'Anslutningen sker säkert via Stripe Checkout så att ditt månatliga stöd blir enkelt och professionellt.', membershipBtn: 'Bli medlem nu',
       member1: 'Enkel återkommande gåva', member2: 'Snabbare stöd till prioriterade projekt', member3: 'Säker och professionell betalning', donationMethodsTitle: 'Andra donationssätt',
@@ -182,6 +182,8 @@
   function translatePage() {
     const activeLang = lang();
     setDir(activeLang);
+    document.body.classList.toggle('lang-sv', activeLang === 'sv');
+    document.body.classList.toggle('lang-ar', activeLang === 'ar');
     document.querySelectorAll('[data-i18n]').forEach(el => el.innerHTML = t(el.dataset.i18n));
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => el.placeholder = t(el.dataset.i18nPlaceholder));
     document.querySelectorAll('[data-lang-btn]').forEach(btn => btn.classList.toggle('active', btn.dataset.langBtn === activeLang));
@@ -211,7 +213,7 @@
       homeImage.src = imageUrl;
       homeImage.alt = title;
     }
-    if (homeLink) homeLink.href = 'current/index.html';
+    if (homeLink) homeLink.href = '/current/';
 
     const currentImage = document.getElementById('currentCampaignImage');
     const currentLink = document.getElementById('currentCampaignImageLink');
@@ -219,7 +221,7 @@
       currentImage.src = imageUrl;
       currentImage.alt = title;
     }
-    if (currentLink) currentLink.href = '../current/index.html';
+    if (currentLink) currentLink.href = '../current/';
   }
 
   function animateValue(el, value, type = 'number') {
@@ -442,6 +444,10 @@
 
   async function loadCurrentCampaign() {
     const current = { ...data.currentCampaign };
+    current.title = current.title || "Umeå";
+    current.location = current.location || "Umeå";
+    current.title = 'Umeå';
+    current.location = 'Umeå';
     const cfg = data.currentCampaignSheet || {};
 
     async function applyRowsFromCsv(url) {
@@ -593,7 +599,7 @@
     const titleEl = document.getElementById('currentTitleText');
     if (titleEl) titleEl.textContent = c.title;
     const locationEl = document.getElementById('currentLocationText');
-    if (locationEl) locationEl.textContent = c.location;
+    if (locationEl) locationEl.textContent = c.location || 'Umeå';
     const updatedEl = document.getElementById('lastUpdatedValue');
     if (updatedEl) {
       const maybeDate = new Date(c.updatedAt);
@@ -613,14 +619,14 @@
     const imageLink = document.getElementById('currentCampaignImageLink');
     const resolvedImage = currentCampaignImageForLang(c);
     if (imageEl && resolvedImage) { imageEl.src = resolvedImage; imageEl.alt = c.title || t('currentTitle'); }
-    if (imageLink) imageLink.href = '../current/index.html';
+    if (imageLink) imageLink.href = '../current/';
     syncCurrentCampaignPromos(c);
 
-    const mapTarget = document.getElementById('currentCampaignMap');
+    const mapTarget = document.getElementById('currentCampaignMapCanvas') || document.getElementById('currentCampaignMap');
     if (mapTarget) {
       const match = data.mosques.find(m => (c.location || '').toLowerCase().includes(m.city.toLowerCase()) || (c.title || '').toLowerCase().includes(m.city.toLowerCase()));
-      const lat = match ? match.lat : 62.0;
-      const lng = match ? match.lng : 15.0;
+      const lat = Number(c.lat || (match ? match.lat : 62.0));
+      const lng = Number(c.lng || (match ? match.lng : 15.0));
       const collected = Number(c.raised || 0);
       const fullAmount = Number(c.goal || collected || 0);
       const progress = Number(c.progress || (fullAmount ? (collected / fullAmount) * 100 : 0));

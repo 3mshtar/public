@@ -29,7 +29,10 @@ Paste it into Apps Script, deploy as a Web App, then copy the URL into:
 field:
   currentCampaignSheet.appsScriptUrl
 
-The current campaign is configured for Katrineholms moské with a goal of 1,500,000 KR.
+The current campaign is configured for Umeå with a goal of 1,500,000 KR.
 
 
 Update added: current campaign now uses language-specific posters (AR/SV) and homepage poster links to current campaign page.
+
+
+Emergency cleanup: Umea current campaign hardcoded and legacy Katrineholm fallback removed from current campaign UI.

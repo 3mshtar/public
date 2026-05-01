@@ -29,8 +29,8 @@ function doGet(e) {
   const payload = {
     ok: true,
     data: {
-      title: pickText(data, ['title', 'name', 'campaign'], 'Katrineholms moské'),
-      location: pickText(data, ['location', 'city'], 'Katrineholm'),
+      title: pickText(data, ['title', 'name', 'campaign'], 'Umeå'),
+      location: pickText(data, ['location', 'city'], 'Umeå'),
       goal: isFiniteNumber(goal) ? goal : 0,
       raised: isFiniteNumber(raised) ? raised : 0,
       remaining: isFiniteNumber(remaining) ? remaining : 0,
