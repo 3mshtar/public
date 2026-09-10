@@ -3158,3 +3158,96 @@ body.lang-sv .section-title {
 /* ==========================================
    END OF STYLESHEET
    ========================================== */
+/* ==========================================
+   Top Ticker / Announcement Bar
+   ========================================== */
+
+.vmb-ticker {
+  position: relative;
+  width: 100%;
+  height: 36px;
+  overflow: hidden;
+  background: linear-gradient(90deg, var(--vmb-secondary), var(--vmb-primary));
+  color: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  z-index: 1050;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.vmb-ticker__track {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 3rem;
+  white-space: nowrap;
+  animation: vmbTickerScroll 40s linear infinite;
+  will-change: transform;
+}
+
+.vmb-ticker:hover .vmb-ticker__track {
+  animation-play-state: paused;
+}
+
+.vmb-ticker__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1.5rem;
+  flex-shrink: 0;
+}
+
+.vmb-ticker__item::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--vmb-accent);
+  flex-shrink: 0;
+}
+
+.vmb-ticker__link {
+  color: #ffffff;
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.4);
+  padding-bottom: 1px;
+  transition: border-color 0.2s ease;
+}
+
+.vmb-ticker__link:hover {
+  color: var(--vmb-accent-soft);
+  border-bottom-color: var(--vmb-accent-soft);
+}
+
+@keyframes vmbTickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+[dir='rtl'] .vmb-ticker__track {
+  animation-name: vmbTickerScrollRtl;
+}
+
+@keyframes vmbTickerScrollRtl {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(50%); }
+}
+
+@media (max-width: 767.98px) {
+  .vmb-ticker {
+    height: 32px;
+    font-size: 0.75rem;
+  }
+  .vmb-ticker__item { padding: 0 1rem; }
+  .vmb-ticker__track { gap: 2rem; animation-duration: 30s; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vmb-ticker__track {
+    animation: none;
+    justify-content: center;
+    overflow-x: auto;
+  }
+}
