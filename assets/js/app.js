@@ -24,7 +24,7 @@
       totalCollected: 'إجمالي ما جمعناه', totalMosques: 'إجمالي المساجد', completedProjects: 'اكتمل جمع المبلغ', totalFull: 'إجمالي المبالغ الكاملة',
       currentTitle: 'الحملة الحالية', currentLead: 'الحملة الحالية مستقلة عن الحملات السابقة، وتُعرض أرقامها بشكل واضح ومباشر مع تحديثات متواصلة.',
       goal: 'المبلغ الكامل', raised: 'المبلغ المحصل', remaining: 'المبلغ المتبقي', lastUpdated: 'آخر تحديث', donateNow: 'ادعم الحملة الآن',
-      currentHint: 'هنا يتم تحديث كل مبلغ وكل تبرع لحظة بلحظة ليظهر للزائر مستوى التقدم ومسار الحملة بصورة واضحة وشفافة.', currentLocation: 'موقع الحملة الحالية', liveSync: 'تحديث مباشر', donationModalTitle: 'اختر طريقة التبرع للحملة الحالية', donationModalLead: 'اختر وسيلة التبرع الأنسب لك لدعم حملة Umeå مباشرة.', donateViaSwish: 'تبرع سريع عبر سويش', donateViaStripe: 'تبرع بالبطاقة عبر Stripe', donateViaPaypal: 'تبرع عبر PayPal',
+      currentHint: 'هنا يتم تحديث كل مبلغ وكل تبرع لحظة بلحظة ليظهر للزائر مستوى التقدم ومسار الحملة بصورة واضحة وشفافة.', currentLocation: 'موقع الحملة الحالية', liveSync: 'تحديث مباشر', donationModalTitle: 'اختر طريقة التبرع للحملة الحالية', donationModalLead: 'اختر وسيلة التبرع الأنسب لك لدعم حملة Karlstad مباشرة.', donateViaSwish: 'تبرع سريع عبر سويش', donateViaStripe: 'تبرع بالبطاقة عبر Stripe', donateViaPaypal: 'تبرع عبر PayPal',
       membershipTitle: 'عضوية داعمة مستمرة', membershipLead: 'ادخل كعضو مساهم وكن جزءًا من العطاء المستمر الذي يبني المساجد ويدعم المشاريع ذات الأولوية.',
       membershipCardTitle: 'عضوية Vi Mår Bra', membershipCardText: 'الاشتراك يتم بشكل آمن عبر Stripe Checkout، ليكون دعمك الشهري ثابتًا وسهلًا.', membershipBtn: 'اشترك الآن',
       member1: 'مساهمة شهرية سهلة', member2: 'دعم أسرع للمشاريع ذات الأولوية', member3: 'وسيلة آمنة واحترافية للدفع', donationMethodsTitle: 'طرق التبرع الأخرى',
@@ -62,7 +62,7 @@
       totalCollected: 'Totalt insamlat av oss', totalMosques: 'Antal moskéer', completedProjects: 'Insamling klar', totalFull: 'Totala projektbelopp',
       currentTitle: 'Aktuell kampanj', currentLead: 'Siffrorna för den aktuella kampanjen visas tydligt och uppdateras löpande utan koppling till tidigare kampanjer.',
       goal: 'Fullt mål', raised: 'Insamlat', remaining: 'Kvar', lastUpdated: 'Senast uppdaterad', donateNow: 'Stöd kampanjen nu',
-      currentHint: 'Här uppdateras varje belopp och varje donation löpande så att besökaren ser kampanjens utveckling tydligt och transparent.', currentLocation: 'Plats för aktuell kampanj', liveSync: 'Direkt uppdatering', donationModalTitle: 'Välj donationssätt för den aktuella kampanjen', donationModalLead: 'Välj det sätt som passar dig bäst för att stödja Umeå direkt.', donateViaSwish: 'Snabb donation via Swish', donateViaStripe: 'Kortbetalning via Stripe', donateViaPaypal: 'Donation via PayPal',
+      currentHint: 'Här uppdateras varje belopp och varje donation löpande så att besökaren ser kampanjens utveckling tydligt och transparent.', currentLocation: 'Plats för aktuell kampanj', liveSync: 'Direkt uppdatering', donationModalTitle: 'Välj donationssätt för den aktuella kampanjen', donationModalLead: 'Välj det sätt som passar dig bäst för att stödja Karlstad direkt.', donateViaSwish: 'Snabb donation via Swish', donateViaStripe: 'Kortbetalning via Stripe', donateViaPaypal: 'Donation via PayPal',
       membershipTitle: 'Löpande stödmedlemskap', membershipLead: 'Bli stödmedlem och var med i ett kontinuerligt givande som bygger moskéer och stärker prioriterade projekt.',
       membershipCardTitle: 'Vi Mår Bra-medlemskap', membershipCardText: 'Anslutningen sker säkert via Stripe Checkout så att ditt månatliga stöd blir enkelt och professionellt.', membershipBtn: 'Bli medlem nu',
       member1: 'Enkel återkommande gåva', member2: 'Snabbare stöd till prioriterade projekt', member3: 'Säker och professionell betalning', donationMethodsTitle: 'Andra donationssätt',
@@ -444,10 +444,8 @@
 
   async function loadCurrentCampaign() {
     const current = { ...data.currentCampaign };
-    current.title = current.title || "Umeå";
-    current.location = current.location || "Umeå";
-    current.title = 'Umeå';
-    current.location = 'Umeå';
+    current.title = current.title || "Karlstad";
+    current.location = current.location || "Karlstad";
     const cfg = data.currentCampaignSheet || {};
 
     async function applyRowsFromCsv(url) {
@@ -491,7 +489,9 @@
         notes: src.notes || src.note || current.notes,
         imageUrl: src.imageUrl || src.image || current.imageUrl,
         imageUrlAr: src.imageUrlAr || src.imageUrl_ar || src.image_ar || current.imageUrlAr,
-        imageUrlSv: src.imageUrlSv || src.imageUrl_sv || src.image_sv || current.imageUrlSv
+        imageUrlSv: src.imageUrlSv || src.imageUrl_sv || src.image_sv || current.imageUrlSv,
+        lat: src.lat || current.lat,
+        lng: src.lng || current.lng
       };
     }
 
@@ -599,7 +599,7 @@
     const titleEl = document.getElementById('currentTitleText');
     if (titleEl) titleEl.textContent = c.title;
     const locationEl = document.getElementById('currentLocationText');
-    if (locationEl) locationEl.textContent = c.location || 'Umeå';
+    if (locationEl) locationEl.textContent = c.location || 'Karlstad';
     const updatedEl = document.getElementById('lastUpdatedValue');
     if (updatedEl) {
       const maybeDate = new Date(c.updatedAt);
