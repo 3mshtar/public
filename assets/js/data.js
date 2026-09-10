@@ -265,14 +265,15 @@ window.VMB_DATA = {
       "lng": 14.6357
     },
     {
-      "id": 26,
+      "id": 25,
       "name": "Katrineholms moské",
       "city": "Katrineholm",
       "year": "May 2025",
       "cost": 1000000,
       "progress": 75,
       "status": "active",
-      "lat": 58.9960
+      "lat": 58.9960,
+      "lng": 16.2060
     }
   ],
   "currentCampaign": {
@@ -300,7 +301,7 @@ window.VMB_DATA = {
   "currentCampaignLinks": {
     "swish": "https://app.swish.nu/1/p/sw/?sw=1235699814",
     "stripe": "https://buy.stripe.com/7sI5mSeKIg6NguIbII",
-    "paypal": " https://www.paypal.com/donate/?hosted_button_id=SH62QX2LQQPUE"
+    "paypal": "https://www.paypal.com/donate/?hosted_button_id=SH62QX2LQQPUE"
   },
   "links": {
     "membership": "https://buy.stripe.com/9B6fZ91MD5Chdv2acKdwc02",
