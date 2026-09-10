@@ -622,26 +622,7 @@
     if (imageLink) imageLink.href = '../current/';
     syncCurrentCampaignPromos(c);
 
-    const mapTarget = document.getElementById('currentCampaignMapCanvas') || document.getElementById('currentCampaignMap');
-    if (mapTarget) {
-      const match = data.mosques.find(m => (c.location || '').toLowerCase().includes(m.city.toLowerCase()) || (c.title || '').toLowerCase().includes(m.city.toLowerCase()));
-      const lat = Number(c.lat || (match ? match.lat : 62.0));
-      const lng = Number(c.lng || (match ? match.lng : 15.0));
-      const collected = Number(c.raised || 0);
-      const fullAmount = Number(c.goal || collected || 0);
-      const progress = Number(c.progress || (fullAmount ? (collected / fullAmount) * 100 : 0));
-      const item = {
-        name: c.title || 'Current campaign',
-        city: c.location || 'Sweden',
-        lat, lng, collected, fullAmount, progress
-      };
-      mapTarget.innerHTML = buildLocalMapMarkup([item], {
-        compact: true,
-        title: c.title || t('currentTitle'),
-        lead: c.location || t('currentLocation')
-      });
-      wireLocalMap(mapTarget, [item]);
-    }
+    
   }
 
   function hydrateLinks() {
