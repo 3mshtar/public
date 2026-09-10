@@ -301,6 +301,7 @@
       visibleItems: MOSQUES.slice(),
       selectedId: (MOSQUES.find((item) => Number(item.progress || 0) < 100) || MOSQUES[0] || {}).id || null
     };
+    
 
     const map = new maplibregl.Map({
       container,
@@ -317,6 +318,17 @@
     map.on('load', () => {
       map.addSource('mosques', { type: 'geojson', data: featureCollection(campaignsState.visibleItems) });
       map.addSource('selected-mosque', { type: 'geojson', data: featureCollection([]) });
+
+      // 🔍 DEBUG - احذفه لاحقاً
+      MOSQUES.forEach(m => {
+        const el = document.createElement('div');
+        el.style.cssText = 'font-size:11px; font-weight:700; color:#000; background:#ffe680; padding:2px 4px; border-radius:4px; pointer-events:none; white-space:nowrap; border:1px solid #000;';
+        el.textContent = m.city;
+        new maplibregl.Marker({ element: el, anchor: 'bottom' })
+          .setLngLat([Number(m.lng), Number(m.lat)])
+          .addTo(map);
+      });
+      // 🔍 END DEBUG
 
       map.addLayer({
         id: 'mosques-points',
