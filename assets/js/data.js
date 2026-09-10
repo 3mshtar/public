@@ -266,19 +266,19 @@ window.VMB_DATA = {
     }
   ],
   "currentCampaign": {
-    "title": "Umeå",
-    "location": "Umeå",
-    "goal": 14000000,
-    "raised": 7000000,
-    "remaining": 7000000,
+    "title": "Karlstad",
+    "location": "Karlstad",
+    "goal": 10000000,
+    "raised": 5000000,
+    "remaining": 5000000,
     "progress": 50,
     "imageUrl": "../assets/img/current-campaign-ar-umea.png",
     "imageUrlAr": "../assets/img/current-campaign-ar-umea.png",
     "imageUrlSv": "../assets/img/current-campaign-sv-umea.png",
     "updatedAt": "2026-04-29 05:18:48",
-    "notes": "الحملة الحالية مخصصة لدعم مشروع Umeå، مع عرض بصري مختلف للعربية والسويدية.",
-    "lat": 63.8258,
-    "lng": 20.263
+    "notes": "الحملة الحالية مخصصة لدعم مشروع Karlstad، مع عرض بصري مختلف للعربية والسويدية.",
+    "lat": 59.3793,
+    "lng": 13.5036
   },
   "currentCampaignSheet": {
     "appsScriptUrl": "",
@@ -288,9 +288,9 @@ window.VMB_DATA = {
     "sheetName": "CurrentCampaign"
   },
   "currentCampaignLinks": {
-    "swish": "https://app.swish.nu/1/p/sw/?sw=1232339703",
-    "stripe": "https://app.swish.nu/1/p/sw/?sw=1232339703",
-    "paypal": "https://app.swish.nu/1/p/sw/?sw=1232339703"
+    "swish": "https://app.swish.nu/1/p/sw/?sw=1235699814",
+    "stripe": "https://buy.stripe.com/7sI5mSeKIg6NguIbII",
+    "paypal": " https://www.paypal.com/donate/?hosted_button_id=SH62QX2LQQPUE"
   },
   "links": {
     "membership": "https://buy.stripe.com/9B6fZ91MD5Chdv2acKdwc02",
