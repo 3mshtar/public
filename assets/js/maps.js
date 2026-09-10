@@ -12,10 +12,10 @@
 
   const MAP_STYLE_URL = 'https://api.maptiler.com/maps/streets-v4/style.json?key=57lMnWNn4izcfORali4H';
   const COLORS = {
-    active: '#f59e0b',       // ذهبي ساطع (قيد التنفيذ)
-    funded: '#dc2626',       // أحمر (بانتظار الشراء)
-    complete: '#16a34a',     // أخضر ساطع (مكتمل)
-    selected: '#2563eb'      // أزرق ساطع (المختار)
+    active: '#f59e0b',
+    funded: '#dc2626',
+    complete: '#16a34a',
+    selected: '#2563eb'
   };
 
   const TEXTS = {
@@ -25,9 +25,9 @@
       mapLead: 'اضغط على أي نقطة أو بطاقة لعرض معلومات المسجد وتفاصيل المشروع.',
       listTitle: 'قائمة المشاريع',
       all: 'الكل',
-      active: 'نشطة',
-      completed: 'مكتملة',
+      active: 'قيد التنفيذ',
       funded: 'بانتظار الشراء',
+      completed: 'مكتمل',
       selectedHint: 'يمكنك التنقل بين المشاريع من الخريطة أو من القائمة.',
       locationLabel: 'الموقع',
       dateLabel: 'التاريخ',
@@ -57,8 +57,8 @@
       listTitle: 'Projektlista',
       all: 'Alla',
       active: 'Pågående',
-      completed: 'Klart',
       funded: 'Väntar på köp',
+      completed: 'Slutförd',
       selectedHint: 'Du kan växla mellan projekten från kartan eller listan.',
       locationLabel: 'Plats',
       dateLabel: 'Datum',
@@ -259,7 +259,8 @@
     campaignsState.filter = filterName;
     campaignsState.visibleItems = MOSQUES.filter((item) => {
       if (filterName === 'completed') return item.status === 'completed';
-      if (filterName === 'active') return item.status !== 'completed';
+      if (filterName === 'funded') return item.status === 'funded';
+      if (filterName === 'active') return item.status === 'active' || item.status === 'started';
       return true;
     });
     document.querySelectorAll('[data-map-filter]').forEach((btn) => btn.classList.toggle('is-active', btn.getAttribute('data-map-filter') === filterName));
@@ -297,10 +298,9 @@
       listEl,
       filter: 'all',
       visibleItems: MOSQUES.slice(),
-      selectedId: null   // ← لا اختيار افتراضي
+      selectedId: null
     };
 
-    // إذا لم يوجد اختيار، نعرض أول حملة نشطة كـ "بطاقة" لكن بدون تمييز على الخريطة
     if (!campaignsState.selectedId && campaignsState.visibleItems.length) {
       const firstActive = campaignsState.visibleItems.find(i => i.status === 'active') || campaignsState.visibleItems[0];
       if (cardEl) cardEl.innerHTML = selectedCardMarkup(firstActive);
