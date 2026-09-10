@@ -12,10 +12,10 @@
 
   const MAP_STYLE_URL = 'https://api.maptiler.com/maps/streets-v4/style.json?key=57lMnWNn4izcfORali4H';
   const COLORS = {
-    active: '#f59e0b',
-    funded: '#dc2626',
-    complete: '#16a34a',
-    selected: '#2563eb'
+    active: '#b8924a',
+    funded: '#b91c1c',
+    complete: '#15803d',
+    selected: '#14524e'
   };
 
   const TEXTS = {
@@ -346,7 +346,7 @@
         source: 'selected-mosque',
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 11, 7, 17],
-          'circle-color': 'rgba(37,99,235,0.18)'
+          'circle-color': 'rgba(20,82,78,0.18)'
         }
       });
       map.addLayer({
@@ -591,7 +591,7 @@
         source: 'current-campaign-source',
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 5, 16, 10, 26],
-          'circle-color': 'rgba(37,99,235,0.16)'
+          'circle-color': 'rgba(20,82,78,0.16)'
         }
       });
       map.addLayer({
