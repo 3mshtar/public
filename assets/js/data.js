@@ -243,7 +243,7 @@ window.VMB_DATA = {
       "lng": 18.7153
     },
     {
-      "id": 24,
+      "id": 23,
       "name": "Vetlanda",
       "city": "Vetlanda",
       "year": "Nov 2024 - Sep 2025",
@@ -254,7 +254,7 @@ window.VMB_DATA = {
       "lng": 15.0778
     },
     {
-      "id": 25,
+      "id": 24,
       "name": "Östersund",
       "city": "Östersund",
       "year": "Dec 2025",
@@ -263,6 +263,16 @@ window.VMB_DATA = {
       "status": "active",
       "lat": 63.1792,
       "lng": 14.6357
+    },
+    {
+      "id": 26,
+      "name": "Katrineholms moské",
+      "city": "Katrineholm",
+      "year": "May 2025",
+      "cost": 1000000,
+      "progress": 75,
+      "status": "active",
+      "lat": 58.9960,
     }
   ],
   "currentCampaign": {
