@@ -14,7 +14,7 @@
 
   const TICKER_CONFIG = {
     enabled: true,          // true = إظهار الشريط، false = إخفاؤه
-    speed: 40,              // مدة الدورة بالثواني (40 = بطيء، 20 = سريع)
+    speed: 30,              // مدة الدورة بالثواني (40 = بطيء، 20 = سريع)
     backgroundColor: null,  // null = يستخدم ألوان الموقع الافتراضية، أو 'linear-gradient(...)'
     textColor: null         // null = أبيض، أو '#ffffff'
   };
