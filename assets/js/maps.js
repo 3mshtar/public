@@ -12,10 +12,10 @@
 
   const MAP_STYLE_URL = 'https://api.maptiler.com/maps/streets-v4/style.json?key=57lMnWNn4izcfORali4H';
   const COLORS = {
-    active: '#c89f4a',
-    funded: '#dc2626',
-    complete: '#0f6d62',
-    selected: '#173431'
+    active: '#f59e0b',       // ذهبي ساطع (قيد التنفيذ)
+    funded: '#dc2626',       // أحمر (بانتظار الشراء)
+    complete: '#16a34a',     // أخضر ساطع (مكتمل)
+    selected: '#2563eb'      // أزرق ساطع (المختار)
   };
 
   const TEXTS = {
@@ -80,7 +80,6 @@
       legendActive: 'Pågående',
       legendFunded: 'Väntar på köp',
       legendCompleted: 'Slutförd'
-
     }
   };
 
@@ -230,7 +229,7 @@
     const source = campaignsState.map.getSource('mosques');
     const selectedSource = campaignsState.map.getSource('selected-mosque');
     if (source) source.setData(featureCollection(campaignsState.visibleItems));
-    const selectedItem = campaignsState.visibleItems.find((item) => item.id === campaignsState.selectedId) || campaignsState.visibleItems[0];
+    const selectedItem = campaignsState.visibleItems.find((item) => item.id === campaignsState.selectedId);
     if (selectedSource) selectedSource.setData(selectedItem ? featureCollection([selectedItem]) : featureCollection([]));
   }
 
@@ -265,7 +264,7 @@
     });
     document.querySelectorAll('[data-map-filter]').forEach((btn) => btn.classList.toggle('is-active', btn.getAttribute('data-map-filter') === filterName));
     const selectedStillVisible = campaignsState.visibleItems.some((item) => item.id === campaignsState.selectedId);
-    campaignsState.selectedId = selectedStillVisible ? campaignsState.selectedId : (campaignsState.visibleItems[0] ? campaignsState.visibleItems[0].id : null);
+    campaignsState.selectedId = selectedStillVisible ? campaignsState.selectedId : null;
     renderCampaignList();
     updateCampaignSource();
     if (!campaignsState.visibleItems.length) {
@@ -277,7 +276,6 @@
       campaignsState.visibleItems.forEach((item) => bounds.extend([Number(item.lng), Number(item.lat)]));
       campaignsState.map.fitBounds(bounds, { padding: window.innerWidth < 768 ? 40 : 70, maxZoom: 5.5, duration: 700 });
     }
-    selectCampaign(campaignsState.selectedId, false);
   }
 
   function initCampaignsPage() {
@@ -299,9 +297,14 @@
       listEl,
       filter: 'all',
       visibleItems: MOSQUES.slice(),
-      selectedId: null
+      selectedId: null   // ← لا اختيار افتراضي
     };
-    
+
+    // إذا لم يوجد اختيار، نعرض أول حملة نشطة كـ "بطاقة" لكن بدون تمييز على الخريطة
+    if (!campaignsState.selectedId && campaignsState.visibleItems.length) {
+      const firstActive = campaignsState.visibleItems.find(i => i.status === 'active') || campaignsState.visibleItems[0];
+      if (cardEl) cardEl.innerHTML = selectedCardMarkup(firstActive);
+    }
 
     const map = new maplibregl.Map({
       container,
@@ -318,7 +321,6 @@
     map.on('load', () => {
       map.addSource('mosques', { type: 'geojson', data: featureCollection(campaignsState.visibleItems) });
       map.addSource('selected-mosque', { type: 'geojson', data: featureCollection([]) });
-
 
       map.addLayer({
         id: 'mosques-points',
@@ -344,7 +346,7 @@
         source: 'selected-mosque',
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 11, 7, 17],
-          'circle-color': 'rgba(23,52,49,0.18)'
+          'circle-color': 'rgba(37,99,235,0.18)'
         }
       });
       map.addLayer({
@@ -589,7 +591,7 @@
         source: 'current-campaign-source',
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 5, 16, 10, 26],
-          'circle-color': 'rgba(15,109,98,0.16)'
+          'circle-color': 'rgba(37,99,235,0.16)'
         }
       });
       map.addLayer({
