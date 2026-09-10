@@ -45,7 +45,10 @@
       loadingMap: 'جاري تحميل الخريطة…',
       mapLoadFailed: 'تعذر تحميل الخريطة حالياً.',
       currentMapTitle: 'موقع الحملة الحالية',
-      currentMapLead: 'خريطة مباشرة لموقع المشروع الحالي داخل السويد.'
+      currentMapLead: 'خريطة مباشرة لموقع المشروع الحالي داخل السويد.',
+      legendActive: 'قيد التنفيذ',
+      legendFunded: 'بانتظار الشراء',
+      legendCompleted: 'مكتمل'
     },
     sv: {
       mapEyebrow: 'Interaktiv karta',
@@ -73,7 +76,11 @@
       loadingMap: 'Laddar karta…',
       mapLoadFailed: 'Kartan kunde inte laddas just nu.',
       currentMapTitle: 'Plats för aktuell kampanj',
-      currentMapLead: 'Direkt karta över den aktuella kampanjens plats i Sverige.'
+      currentMapLead: 'Direkt karta över den aktuella kampanjens plats i Sverige.',
+      legendActive: 'Pågående',
+      legendFunded: 'Väntar på köp',
+      legendCompleted: 'Slutförd'
+
     }
   };
 

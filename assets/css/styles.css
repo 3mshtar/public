@@ -2695,3 +2695,85 @@ body.lang-sv .hero-copy{max-width:60ch;}
 @media (max-width: 991px){
   body.lang-sv .hero-shell .display-title{font-size:clamp(2rem,9.2vw,3.35rem) !important;max-width:8.2ch !important;}
 }
+/* ==========================================
+   Map Legend (مفتاح ألوان الخريطة)
+   ========================================== */
+.vmb-map-panel {
+  position: relative;
+}
+
+.map-legend-box {
+  position: absolute;
+  bottom: 20px;
+  inset-inline-start: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 14px;
+  border: 1px solid rgba(15, 109, 98, 0.14);
+  box-shadow: 0 8px 24px rgba(23, 52, 49, 0.12);
+  z-index: 5;
+  font-family: inherit;
+}
+
+.map-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #173431;
+  white-space: nowrap;
+}
+
+.map-legend-dot {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  flex-shrink: 0;
+}
+
+/* Legend أسفل الخريطة في صفحة الحملة الحالية */
+.map-shell {
+  position: relative;
+}
+
+.map-shell .map-legend-box {
+  position: relative;
+  bottom: auto;
+  inset-inline-start: auto;
+  margin-top: 12px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  padding: 12px 18px;
+  box-shadow: 0 6px 16px rgba(23, 52, 49, 0.08);
+}
+
+@media (max-width: 767.98px) {
+  .map-legend-box {
+    bottom: 12px;
+    inset-inline-start: 12px;
+    padding: 9px 11px;
+    gap: 6px;
+  }
+  .map-legend-item {
+    font-size: 11px;
+  }
+  .map-legend-dot {
+    width: 10px;
+    height: 10px;
+  }
+  .map-shell .map-legend-box {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+}
