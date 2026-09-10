@@ -2,7 +2,7 @@
  * VMB Top Announcement Ticker
  * -------------------------------------------------
  * ملف واحد لإنشاء شريط الإعلانات العلوي في كل الصفحات.
- * لتعديل النصوص أو السرعة: عدّل هذا الملف فقط.
+ * لتعديل النصوص أو السرعة أو الألوان: عدّل هذا الملف فقط.
  */
 
 (function () {
@@ -13,10 +13,13 @@
   // ═══════════════════════════════════════════════════════
 
   const TICKER_CONFIG = {
-    enabled: true,          // true = إظهار الشريط، false = إخفاؤه
-    speed: 30,              // مدة الدورة بالثواني (40 = بطيء، 20 = سريع)
-    backgroundColor: 'linear-gradient(90deg, #0d3b38 0%, #14524e 50%, #b8924a 100%)', // null = يستخدم ألوان الموقع الافتراضية، أو 'linear-gradient(...)'
-    textColor: null         // null = أبيض، أو '#ffffff'
+    enabled: true,                          // true = إظهار الشريط، false = إخفاؤه
+    speed: 30,                              // سرعة حركة النص (20 = سريع، 60 = بطيء)
+    backgroundColor: 'linear-gradient(90deg, #0d3b38 0%, #14524e 25%, #b8924a 50%, #14524e 75%, #0d3b38 100%)',
+    backgroundColorSize: '400% 100%',       // حجم التدرج (كلما زاد → حركة أبطأ وأوسع)
+    animateBackground: true,                // true = تحريك الألوان، false = ثابتة
+    backgroundSpeed: 15,                    // سرعة حركة الألوان بالثواني (10 = سريع، 30 = بطيء)
+    textColor: '#ffffff'                    // لون النص
   };
 
   // ═══════════════════════════════════════════════════════
@@ -41,7 +44,6 @@
   function getBasePath() {
     // تحديد المسار الأساسي حسب موقع الصفحة
     const path = window.location.pathname;
-    // إذا كانت الصفحة في مجلد فرعي (campaigns, current, إلخ)
     if (path.includes('/campaigns/') ||
         path.includes('/current/') ||
         path.includes('/membership/') ||
@@ -57,7 +59,7 @@
     const trackItems = [];
 
     // بناء العنصر لكل نص
-    function buildItem(item, index, hidden) {
+    function buildItem(item, hidden) {
       const span = document.createElement('span');
       span.className = 'vmb-ticker__item';
       if (hidden) span.setAttribute('aria-hidden', 'true');
@@ -80,13 +82,13 @@
     }
 
     // المجموعة الأولى
-    TICKER_ITEMS.forEach((item, i) => {
-      trackItems.push(buildItem(item, i, false));
+    TICKER_ITEMS.forEach((item) => {
+      trackItems.push(buildItem(item, false));
     });
 
     // المجموعة الثانية (نسخة مخفية للتمرير السلس)
-    TICKER_ITEMS.forEach((item, i) => {
-      trackItems.push(buildItem(item, i, true));
+    TICKER_ITEMS.forEach((item) => {
+      trackItems.push(buildItem(item, true));
     });
 
     // بناء الشريط
@@ -116,12 +118,27 @@
     // إنشاء الشريط
     const ticker = buildTicker();
 
-    // تخصيص الألوان إذا حُددت في الإعدادات
+    // ═══════════════════════════════════════════════════
+    // تخصيص الخلفية
+    // ═══════════════════════════════════════════════════
     if (TICKER_CONFIG.backgroundColor) {
+      ticker.style.backgroundImage = TICKER_CONFIG.backgroundColor;
       ticker.style.background = TICKER_CONFIG.backgroundColor;
     }
+
+    // ═══════════════════════════════════════════════════
+    // تخصيص لون النص
+    // ═══════════════════════════════════════════════════
     if (TICKER_CONFIG.textColor) {
       ticker.style.color = TICKER_CONFIG.textColor;
+    }
+
+    // ═══════════════════════════════════════════════════
+    // تحريك الألوان (Gradient Animation)
+    // ═══════════════════════════════════════════════════
+    if (TICKER_CONFIG.animateBackground && TICKER_CONFIG.backgroundColor) {
+      ticker.style.backgroundSize = TICKER_CONFIG.backgroundColorSize || '400% 100%';
+      ticker.style.animation = 'vmbTickerGradient ' + (TICKER_CONFIG.backgroundSpeed || 15) + 's ease infinite';
     }
 
     // إدخال الشريط قبل `body` مباشرة (فوق كل شيء)
