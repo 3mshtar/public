@@ -272,7 +272,7 @@ window.VMB_DATA = {
       "cost": 1000000,
       "progress": 75,
       "status": "active",
-      "lat": 58.9960,
+      "lat": 58.9960
     }
   ],
   "currentCampaign": {
