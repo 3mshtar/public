@@ -1,4 +1,3 @@
-
 (function () {
   const texts = {
     ar: {
@@ -36,7 +35,7 @@
       whatsapp: 'واتساب', email: 'البريد الإلكتروني', sendMsg: 'أرسل رسالتك', name: 'الاسم الكامل', mosqueName: 'اسم المسجد', phone: 'رقم الهاتف', message: 'رسالتك', submit: 'إرسال الطلب',
       footerText: 'Vi Mår Bra — حملة غير ربحية لإعمار وتطوير المساجد في السويد.',
       popupYear: 'التاريخ', popupCollected: 'تم جمع', popupFull: 'المبلغ الكامل', popupProgress: 'النسبة', popupStatus: 'حالة المشروع', fundingStatus: 'حالة جمع المبلغ',
-      started: 'المشروع في بدايته', active: 'المشروع قيد التنفيذ', completed: 'المشروع مكتمل', fundingComplete: 'اكتمل جمع المبلغ', fundingOpen: 'جمع التبرعات مستمر', currency: 'KR',
+      started: 'المشروع في بدايته', active: 'المشروع قيد التنفيذ', funded: 'تم جمع المبلغ، بانتظار الشراء', completed: 'المشروع مكتمل', fundingComplete: 'اكتمل جمع المبلغ', fundingOpen: 'جمع التبرعات مستمر', currency: 'KR',
       locationLabel: 'الموقع', amountLive: 'تحديثات مستمرة', contactSuccess: 'شكراً لك. تم تجهيز النموذج لإرسال رسالتك مباشرة إلى بريد المنظمة.'
     },
     sv: {
@@ -75,21 +74,17 @@
       footerText: 'Vi Mår Bra — ideell kampanj för att bygga och utveckla moskéer i Sverige.',
       popupYear: 'Datum', popupCollected: 'Insamlat', popupFull: 'Fullt belopp', popupProgress: 'Procent', popupStatus: 'Projektstatus', fundingStatus: 'Insamlingsstatus',
       fundingComplete: 'Insamlingen är klar', fundingOpen: 'Insamlingen pågår',
-      started: 'Projektstart', active: 'Pågående', completed: 'Slutförd', currency: 'KR',
+      started: 'Projektstart', active: 'Pågående', funded: 'Insamlingen klar, väntar på köp', completed: 'Slutförd', currency: 'KR',
       locationLabel: 'Plats', amountLive: 'Löpande uppdateringar', contactSuccess: 'Tack. Formuläret är förberett för att skicka ditt meddelande direkt till organisationens e-post.'
     }
   };
 
   const data = window.VMB_DATA;
   data.mosques = (data.mosques || []).map((m) => {
-    const collected = Number(m.collected ?? m.cost ?? 0);
+    const collected = Number(m.collected ?? (Number(m.progress) >= 100 ? m.cost : 0));
     let progress = Number(m.progress || 0);
     if (!Number.isFinite(progress)) progress = 0;
-    let fullAmount = Number(m.fullAmount || 0);
-    if (!fullAmount) {
-      if (progress > 0 && progress < 100) fullAmount = Math.round((collected / (progress / 100)) / 1000) * 1000;
-      else fullAmount = collected;
-    }
+    const fullAmount = Number(m.cost ?? m.fullAmount ?? 0);
     return { ...m, collected, fullAmount, progress };
   });
 

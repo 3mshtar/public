@@ -5,7 +5,7 @@
     const progress = Number(m.progress || 0) || 0;
     let fullAmount = Number(m.fullAmount || 0) || 0;
     if (!fullAmount) {
-      fullAmount = progress > 0 && progress < 100 ? Math.round((collected / (progress / 100)) / 1000) * 1000 : collected;
+      fullAmount = Number(m.cost) || (progress > 0 && progress < 100 ? Math.round((collected / (progress / 100)) / 1000) * 1000 : collected);
     }
     return { ...m, collected, fullAmount, progress };
   });
@@ -13,6 +13,7 @@
   const MAP_STYLE_URL = 'https://api.maptiler.com/maps/streets-v4/style.json?key=57lMnWNn4izcfORali4H';
   const COLORS = {
     active: '#c89f4a',
+    funded: '#dc2626',
     complete: '#0f6d62',
     selected: '#173431'
   };
@@ -26,6 +27,7 @@
       all: 'الكل',
       active: 'نشطة',
       completed: 'مكتملة',
+      funded: 'بانتظار الشراء',
       selectedHint: 'يمكنك التنقل بين المشاريع من الخريطة أو من القائمة.',
       locationLabel: 'الموقع',
       dateLabel: 'التاريخ',
@@ -38,6 +40,7 @@
       fundingComplete: 'اكتمل جمع المبلغ',
       status_started: 'المشروع في بدايته',
       status_active: 'قيد التنفيذ',
+      status_funded: 'تم جمع المبلغ، بانتظار الشراء',
       status_completed: 'مكتمل',
       loadingMap: 'جاري تحميل الخريطة…',
       mapLoadFailed: 'تعذر تحميل الخريطة حالياً.',
@@ -52,6 +55,7 @@
       all: 'Alla',
       active: 'Pågående',
       completed: 'Klart',
+      funded: 'Väntar på köp',
       selectedHint: 'Du kan växla mellan projekten från kartan eller listan.',
       locationLabel: 'Plats',
       dateLabel: 'Datum',
@@ -64,6 +68,7 @@
       fundingComplete: 'Insamlingen är klar',
       status_started: 'Projektstart',
       status_active: 'Pågående',
+      status_funded: 'Insamlingen klar, väntar på köp',
       status_completed: 'Slutförd',
       loadingMap: 'Laddar karta…',
       mapLoadFailed: 'Kartan kunde inte laddas just nu.',
@@ -247,8 +252,8 @@
     if (!campaignsState) return;
     campaignsState.filter = filterName;
     campaignsState.visibleItems = MOSQUES.filter((item) => {
-      if (filterName === 'completed') return Number(item.progress || 0) >= 100;
-      if (filterName === 'active') return Number(item.progress || 0) < 100;
+      if (filterName === 'completed') return item.status === 'completed';
+      if (filterName === 'active') return item.status !== 'completed';
       return true;
     });
     document.querySelectorAll('[data-map-filter]').forEach((btn) => btn.classList.toggle('is-active', btn.getAttribute('data-map-filter') === filterName));
@@ -312,7 +317,12 @@
         source: 'mosques',
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 6, 7, 10],
-          'circle-color': ['case', ['>=', ['to-number', ['get', 'progress']], 100], COLORS.complete, COLORS.active],
+          'circle-color': [
+            'case',
+            ['==', ['get', 'status'], 'funded'], COLORS.funded,
+            ['==', ['get', 'status'], 'completed'], COLORS.complete,
+            COLORS.active
+          ],
           'circle-stroke-width': 2.5,
           'circle-stroke-color': '#ffffff',
           'circle-opacity': 0.95
@@ -421,12 +431,12 @@
     if (!Array.isArray(rows) || !rows.length) return null;
     const current = { ...(fallbackCurrent || {}) };
     const aliases = {
-      goal: ['goal', 'target', 'malsumman', 'المبلغالمطلوب', 'المبلغالمستهدف', 'المبلغالمطلوب', 'المبلغ الكامل', 'المبلغالكامل', 'المبلغ المطلوب'],
-      raised: ['raised', 'collected', 'insamlat', 'المبلغالمجموع', 'المبلغالمحصل', 'المبلغ المحصل', 'المبلغ المجموع'],
-      remaining: ['remaining', 'kvar', 'المبلغالمتبقي', 'المبلغ المتبقي'],
+      goal: ['goal', 'target', 'malsumman', 'المبلغ الكامل', 'الهدف'],
+      raised: ['raised', 'collected', 'insamlat', 'المبلغ المحصل', 'المحصل'],
+      remaining: ['remaining', 'kvar', 'المبلغ المتبقي', 'المتبقي'],
       title: ['title', 'name', 'campaign', 'العنوان', 'اسم الحملة'],
       location: ['location', 'city', 'الموقع', 'المدينة'],
-      updatedAt: ['updatedat', 'updated', 'lastupdate', 'آخر تحديث', 'اخر تحديث'],
+      updatedAt: ['updatedat', 'updated', 'lastupdate', 'آخر تحديث'],
       notes: ['notes', 'message', 'ملاحظات', 'رسالة'],
       imageUrl: ['imageurl', 'image', 'الصورة']
     };
@@ -519,7 +529,6 @@
     return fallbackCurrent;
   }
 
-  // ✅ تم التعديل: يستخدم إحداثيات currentCampaign مباشرة
   async function initCurrentCampaignMap() {
     const container = document.getElementById('currentCampaignMapCanvas');
     if (!container || typeof maplibregl === 'undefined') return;
@@ -531,11 +540,9 @@
     container.innerHTML = '';
     const c = await loadCurrentCampaignData();
 
-    // ✅ استخدم إحداثيات currentCampaign مباشرة (Karlstad = 59.3793, 13.5036)
     const lat = Number(c.lat || 59.3793);
     const lng = Number(c.lng || 13.5036);
 
-    // ابحث عن مطابقة في MOSQUES فقط إذا لم توجد إحداثيات
     const match = (!c.lat && !c.lng) ? MOSQUES.find((m) =>
       String(c.location || '').toLowerCase().includes(String(m.city || '').toLowerCase()) ||
       String(c.title || '').toLowerCase().includes(String(m.city || '').toLowerCase())
