@@ -519,6 +519,7 @@
     return fallbackCurrent;
   }
 
+  // ✅ تم التعديل: يستخدم إحداثيات currentCampaign مباشرة
   async function initCurrentCampaignMap() {
     const container = document.getElementById('currentCampaignMapCanvas');
     if (!container || typeof maplibregl === 'undefined') return;
@@ -529,14 +530,24 @@
 
     container.innerHTML = '';
     const c = await loadCurrentCampaignData();
-    const match = MOSQUES.find((m) => String(c.location || '').toLowerCase().includes(String(m.city || '').toLowerCase()) || String(c.title || '').toLowerCase().includes(String(m.city || '').toLowerCase()));
+
+    // ✅ استخدم إحداثيات currentCampaign مباشرة (Karlstad = 59.3793, 13.5036)
+    const lat = Number(c.lat || 59.3793);
+    const lng = Number(c.lng || 13.5036);
+
+    // ابحث عن مطابقة في MOSQUES فقط إذا لم توجد إحداثيات
+    const match = (!c.lat && !c.lng) ? MOSQUES.find((m) =>
+      String(c.location || '').toLowerCase().includes(String(m.city || '').toLowerCase()) ||
+      String(c.title || '').toLowerCase().includes(String(m.city || '').toLowerCase())
+    ) : null;
+
     const item = {
       id: 'current-campaign',
-      name: c.title || 'Current campaign',
-      city: c.location || 'Sweden',
+      name: c.title || 'Karlstad',
+      city: c.location || 'Karlstad',
       year: c.updatedAt || '',
-      lat: match ? match.lat : 58.9958,
-      lng: match ? match.lng : 16.2072,
+      lat: match ? match.lat : lat,
+      lng: match ? match.lng : lng,
       collected: Number(c.raised || 0),
       fullAmount: Number(c.goal || 0),
       progress: Number(c.progress || 0),
